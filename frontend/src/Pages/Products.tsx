@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
+import { BACKEND_URL } from '../Config/api';
 
 export default function Products() {
   const [products, setProducts] = useState<any[]>([]);
@@ -13,7 +14,7 @@ export default function Products() {
     const fetchProducts = async () => {
       setLoading(true);
       try {
-        const url = searchQuery ? `/api/products?q=${encodeURIComponent(searchQuery)}` : '/api/products';
+        const url = searchQuery ? `${BACKEND_URL}/api/products?q=${encodeURIComponent(searchQuery)}` : `${BACKEND_URL}/api/products`;
         const res = await fetch(url);
         const data = await res.json();
         if (data.success) {
@@ -69,7 +70,7 @@ export default function Products() {
                 <div className="p-6 flex flex-col flex-grow">
                   <div className="flex justify-between items-start mb-2">
                     <h3 className="text-xl font-bold text-textMain font-heading">{product.name}</h3>
-                    <span className="text-lg font-bold text-primary">${product.price.toFixed(2)}</span>
+                    <span className="text-lg font-bold text-primary">₹{product.price.toFixed(2)}</span>
                   </div>
                   <p className="text-textMuted text-sm mb-4 line-clamp-2">{product.description}</p>
                   

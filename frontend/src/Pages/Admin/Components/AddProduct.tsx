@@ -2,6 +2,9 @@ import React, { useState, useRef } from 'react';
 import { Plus, X, Image as ImageIcon } from 'lucide-react';
 import imageCompression from 'browser-image-compression';
 import { supabase } from '../../../Config/supabase';
+import { toast } from 'react-hot-toast';
+import { productSchema, validateData } from '../../../Utils/validators';
+import { BACKEND_URL } from '../../../Config/api';
 
 export const CATEGORIES = ['Pizza', 'Burger', 'Main Course', 'Sides', 'Beverages', 'Desserts', 'Salads', 'Appetizers'];
 
@@ -13,18 +16,18 @@ export default function AddProduct() {
   const [items, setItems] = useState(''); // comma separated
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [isCompressing, setIsCompressing] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
-  const [formError, setFormError] = useState('');
-  const [formSuccess, setFormSuccess] = useState('');
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
+      setIsCompressing(true);
       
       const options = {
-        maxSizeMB: 1,
+        maxSizeMB: 0.5,
         maxWidthOrHeight: 1024,
         useWebWorker: true,
       };
@@ -35,7 +38,9 @@ export default function AddProduct() {
         setImagePreview(URL.createObjectURL(compressedFile));
       } catch (error) {
         console.error("Error compressing image:", error);
-        setFormError('Failed to compress image. Please try another.');
+        toast.error('Failed to compress image. Please try another.');
+      } finally {
+        setIsCompressing(false);
       }
     }
   };
@@ -50,11 +55,18 @@ export default function AddProduct() {
 
   const handleAddProduct = async (e: React.FormEvent) => {
     e.preventDefault();
-    setFormError('');
-    setFormSuccess('');
     
-    if (!productName || !description || !price || !category || !items) {
-      setFormError('Please fill in all text fields.');
+    // Validate with Zod like a python serializer
+    const validation = validateData(productSchema, {
+      name: productName,
+      description,
+      price: parseFloat(price) || 0,
+      category,
+      items
+    });
+
+    if (validation.success === false) {
+      toast.error(validation.error);
       return;
     }
 
@@ -84,7 +96,7 @@ export default function AddProduct() {
       }
 
       // Save to Express backend
-      const response = await fetch('/api/products', {
+      const response = await fetch(`${BACKEND_URL}/api/products`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -105,7 +117,7 @@ export default function AddProduct() {
         throw new Error(data.error || 'Failed to save product to database');
       }
 
-      setFormSuccess('Product added successfully!');
+      toast.success('Product added successfully!');
       
       // Reset form
       setProductName('');
@@ -117,7 +129,7 @@ export default function AddProduct() {
 
     } catch (err: any) {
       console.error(err);
-      setFormError(err.message || 'An error occurred while saving the product.');
+      toast.error(err.message || 'An error occurred while saving the product.');
     } finally {
       setIsUploading(false);
     }
@@ -126,11 +138,8 @@ export default function AddProduct() {
   return (
     <div>
       <h2 className="text-xl font-bold mb-6">Add New Product</h2>
-      
-      {formError && <div className="mb-6 p-4 bg-red-50 text-red-700 rounded-xl text-sm border border-red-200">{formError}</div>}
-      {formSuccess && <div className="mb-6 p-4 bg-green-50 text-green-700 rounded-xl text-sm border border-green-200">{formSuccess}</div>}
 
-      <form className="max-w-3xl space-y-6" onSubmit={handleAddProduct}>
+      <form className="w-full space-y-6" onSubmit={handleAddProduct}>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
             <label className="block text-sm font-semibold text-textMain mb-2">Product Name</label>
@@ -169,7 +178,7 @@ export default function AddProduct() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <label className="block text-sm font-semibold text-textMain mb-2">Price ($)</label>
+            <label className="block text-sm font-semibold text-textMain mb-2">Price (₹)</label>
             <input 
               type="number" 
               step="0.01" 
@@ -195,16 +204,30 @@ export default function AddProduct() {
           <label className="block text-sm font-semibold text-textMain mb-2">Product Image (Compressed Automatically)</label>
           
           <div className="mt-2 flex justify-center rounded-xl border border-dashed border-gray-300 px-6 py-10 bg-surface relative overflow-hidden transition-colors hover:border-primary">
-            {imagePreview ? (
-              <div className="relative group w-full flex justify-center">
-                <img src={imagePreview} alt="Preview" className="max-h-64 object-contain rounded-lg" />
-                <button 
-                  type="button" 
-                  onClick={handleRemoveImage}
-                  className="absolute top-2 right-2 p-1.5 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600 shadow-md"
-                >
-                  <X size={16} />
-                </button>
+            {(imagePreview || isCompressing || isUploading) ? (
+              <div className="relative group w-full flex justify-center items-center h-48">
+                {imagePreview && (
+                  <img src={imagePreview} alt="Preview" className={`max-h-64 object-contain rounded-lg ${(isCompressing || isUploading) ? 'opacity-50' : ''}`} />
+                )}
+                
+                {(isCompressing || isUploading) && (
+                  <div className="absolute inset-0 flex flex-col items-center justify-center bg-white/40 rounded-lg">
+                    <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+                    <span className="mt-2 text-sm font-semibold text-primary">
+                      {isCompressing ? 'Compressing...' : 'Uploading...'}
+                    </span>
+                  </div>
+                )}
+
+                {imagePreview && !isUploading && !isCompressing && (
+                  <button 
+                    type="button" 
+                    onClick={handleRemoveImage}
+                    className="absolute top-2 right-2 p-1.5 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600 shadow-md"
+                  >
+                    <X size={16} />
+                  </button>
+                )}
               </div>
             ) : (
               <div className="text-center">

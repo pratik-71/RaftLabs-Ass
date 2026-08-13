@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Package, Edit2, Trash2, X, AlertCircle } from 'lucide-react';
 import { CATEGORIES } from './AddProduct';
+import { BACKEND_URL } from '../../../Config/api';
 
 export default function ViewProducts() {
   const [products, setProducts] = useState<any[]>([]);
@@ -13,7 +14,7 @@ export default function ViewProducts() {
   const fetchProducts = async () => {
     setIsLoadingProducts(true);
     try {
-      const response = await fetch('/api/products');
+      const response = await fetch(`${BACKEND_URL}/api/products`);
       const data = await response.json();
       if (data.success) {
         setProducts(data.data);
@@ -33,7 +34,7 @@ export default function ViewProducts() {
     if (!productToDelete) return;
     
     try {
-      const res = await fetch(`/api/products/${productToDelete.id}`, {
+      const res = await fetch(`${BACKEND_URL}/api/products/${productToDelete.id}`, {
         method: 'DELETE'
       });
       if (res.ok) {
@@ -50,7 +51,7 @@ export default function ViewProducts() {
     if (!editingProduct) return;
 
     try {
-      const res = await fetch(`/api/products/${editingProduct.id}`, {
+      const res = await fetch(`${BACKEND_URL}/api/products/${editingProduct.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(editingProduct)
@@ -102,7 +103,7 @@ export default function ViewProducts() {
                   <td className="p-4 text-sm text-textMuted">
                     <span className="bg-surface border border-border px-2 py-1 rounded-full">{p.category}</span>
                   </td>
-                  <td className="p-4 font-bold text-primary">${Number(p.price).toFixed(2)}</td>
+                  <td className="p-4 font-bold text-primary">₹{Number(p.price).toFixed(2)}</td>
                   <td className="p-4 text-right">
                     <button 
                       onClick={() => setEditingProduct({...p, items: p.items ? p.items.join(', ') : ''})}
@@ -208,7 +209,7 @@ export default function ViewProducts() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm font-semibold text-textMain mb-2">Price ($)</label>
+                  <label className="block text-sm font-semibold text-textMain mb-2">Price (₹)</label>
                   <input 
                     type="number" 
                     step="0.01" 

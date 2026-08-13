@@ -1,13 +1,16 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Search, ShoppingCart, User as UserIcon, LogOut } from 'lucide-react';
+import { ShoppingBag, Search, Menu, X, User as UserIcon, LogOut, ShoppingCart } from 'lucide-react';
+import { BACKEND_URL } from '../Config/api';
 import { useAuthStore } from '../Store/authStore';
+import { useCartStore } from '../Store/cartStore';
 import { supabase } from '../Config/supabase';
 
 export default function Navbar() {
   const user = useAuthStore((state) => state.user);
+  const cartItemsCount = useCartStore((state) => state.items.reduce((total, item) => total + item.quantity, 0));
   const navigate = useNavigate();
-
+  
   const [searchQuery, setSearchQuery] = useState('');
   const [suggestions, setSuggestions] = useState<any[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
@@ -25,7 +28,7 @@ export default function Navbar() {
         return;
       }
       try {
-        const res = await fetch(`/api/products?q=${encodeURIComponent(searchQuery)}`);
+        const res = await fetch(`${BACKEND_URL}/api/products?q=${encodeURIComponent(searchQuery)}`);
         const data = await res.json();
         if (data.success) {
           setSuggestions(data.data.slice(0, 5)); // limit to 5 suggestions
@@ -120,16 +123,18 @@ export default function Navbar() {
           <Search size={20} />
         </button>
         
+        {/* Cart Icon - Always visible */}
+        <Link to="/cart" className="text-textMain hover:text-primary transition-colors p-2 rounded-full hover:bg-surface relative">
+          <ShoppingCart size={20} />
+          {cartItemsCount > 0 && (
+            <span className="absolute top-0 right-0 bg-primary text-white text-[10px] font-bold w-4 h-4 flex items-center justify-center rounded-full">
+              {cartItemsCount}
+            </span>
+          )}
+        </Link>
+        
         {user ? (
           <>
-            <Link to="/cart" className="text-textMain hover:text-primary transition-colors p-2 rounded-full hover:bg-surface relative">
-              <ShoppingCart size={20} />
-              {/* Badge placeholder */}
-              <span className="absolute top-0 right-0 bg-primary text-white text-[10px] font-bold w-4 h-4 flex items-center justify-center rounded-full">
-                0
-              </span>
-            </Link>
-            
             <div className="group relative">
               <button className="flex items-center gap-2 text-textMain hover:text-primary transition-colors p-2 rounded-full hover:bg-surface">
                 <UserIcon size={20} />
@@ -143,6 +148,9 @@ export default function Navbar() {
                 <div className="p-2 flex flex-col">
                   <Link to="/profile" className="px-4 py-2 hover:bg-background rounded-lg text-sm text-textMain transition-colors">
                     Profile
+                  </Link>
+                  <Link to="/orders" className="px-4 py-2 hover:bg-background rounded-lg text-sm text-textMain transition-colors">
+                    Orders
                   </Link>
                   <button onClick={handleLogout} className="px-4 py-2 hover:bg-red-50 text-red-600 rounded-lg text-sm text-left flex items-center gap-2 transition-colors">
                     <LogOut size={16} />

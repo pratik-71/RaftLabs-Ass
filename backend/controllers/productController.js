@@ -1,9 +1,7 @@
-// In-memory mock database for products
-let products = [
-  { id: 1, name: 'Classic Burger', description: 'Beef patty with lettuce and tomato', price: 8.99, category: 'Main Course', items: ['patty', 'lettuce', 'tomato'], imageUrl: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?q=80&w=600&auto=format&fit=crop' },
-  { id: 2, name: 'Cheese Fries', description: 'Crispy fries with melted cheddar', price: 4.99, category: 'Appetizers', items: ['fries', 'cheese'], imageUrl: 'https://images.unsplash.com/photo-1541592106381-b31e9677c0e5?q=80&w=600&auto=format&fit=crop' },
-  { id: 3, name: 'Vanilla Shake', description: 'Creamy vanilla milkshake', price: 3.99, category: 'Drinks', items: ['milk', 'vanilla ice cream'], imageUrl: 'https://images.unsplash.com/photo-1572490122747-3968b75bf699?q=80&w=600&auto=format&fit=crop' }
-];
+const { productSchema, validateData } = require('../utils/validators');
+
+// In-memory database for products
+let products = [];
 
 // @desc    Get all products (with optional search query)
 // @route   GET /api/products
@@ -31,15 +29,48 @@ exports.getProducts = async (req, res) => {
   }
 };
 
+// @desc    Get single product by slug
+// @route   GET /api/products/slug/:slug
+// @access  Public
+exports.getProductBySlug = async (req, res) => {
+  try {
+    const { slug } = req.params;
+    const product = products.find(p => p.slug === slug);
+    
+    if (!product) {
+      return res.status(404).json({ success: false, error: 'Product not found' });
+    }
+    
+    res.status(200).json({ success: true, data: product });
+  } catch (error) {
+    res.status(500).json({ success: false, error: 'Server Error' });
+  }
+};
+
 // @desc    Add a product
 // @route   POST /api/products
 // @access  Private/Admin
 exports.addProduct = async (req, res) => {
   try {
     const product = req.body;
-    product.id = products.length ? Math.max(...products.map(p => p.id)) + 1 : 1;
-    products.push(product);
-    res.status(201).json({ success: true, data: product });
+    
+    // Validate request data
+    const validation = validateData(productSchema, product);
+    if (!validation.success) {
+      return res.status(400).json({ success: false, error: validation.error });
+    }
+    
+    // Use validated data to ensure clean types
+    const cleanProduct = validation.data;
+    cleanProduct.id = products.length ? Math.max(...products.map(p => p.id)) + 1 : 1;
+    
+    // Auto-generate slug if not provided
+    if (!cleanProduct.slug) {
+      cleanProduct.slug = cleanProduct.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+    }
+    
+    products.push(cleanProduct);
+    res.status(201).json({ success: true, data: cleanProduct });
   } catch (error) {
     res.status(500).json({ success: false, error: 'Server Error' });
   }
@@ -63,7 +94,21 @@ exports.updateProduct = async (req, res) => {
        updateData.items = updateData.items.split(',').map(i => i.trim());
     }
 
-    products[index] = { ...products[index], ...updateData };
+    // Merge existing with updates before validating
+    const mergedData = { ...products[index], ...updateData };
+    
+    // Validate merged data
+    const validation = validateData(productSchema, mergedData);
+    if (!validation.success) {
+      return res.status(400).json({ success: false, error: validation.error });
+    }
+
+    const cleanProduct = validation.data;
+    if (updateData.name && !updateData.slug) {
+      cleanProduct.slug = cleanProduct.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+    }
+
+    products[index] = cleanProduct;
     res.status(200).json({ success: true, data: products[index] });
   } catch (error) {
     res.status(500).json({ success: false, error: 'Server Error' });

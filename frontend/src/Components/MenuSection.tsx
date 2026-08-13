@@ -1,38 +1,39 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import MenuCard from './MenuCard';
-import { Pizza, Coffee, Croissant, Beef } from 'lucide-react';
+import { Pizza } from 'lucide-react'; // Fallback icon
+import { BACKEND_URL } from '../Config/api';
+
+interface Product {
+  id: number;
+  name: string;
+  description: string;
+  price: number;
+  category: string;
+  slug: string;
+  imageUrl?: string;
+}
 
 export default function MenuSection() {
-  const menuItems = [
-    {
-      id: 1,
-      title: 'Classic Margherita',
-      description: 'Fresh tomatoes, mozzarella, basil, and a drizzle of olive oil.',
-      price: '$12.99',
-      icon: <Pizza size={60} strokeWidth={1.5} />,
-    },
-    {
-      id: 2,
-      title: 'Spicy Beef Burger',
-      description: 'Double patty with jalapenos, cheddar cheese, and spicy mayo.',
-      price: '$14.50',
-      icon: <Beef size={60} strokeWidth={1.5} />,
-    },
-    {
-      id: 3,
-      title: 'French Croissant',
-      description: 'Flaky, buttery pastry baked fresh every morning.',
-      price: '$4.99',
-      icon: <Croissant size={60} strokeWidth={1.5} />,
-    },
-    {
-      id: 4,
-      title: 'Artisan Coffee',
-      description: 'Locally roasted beans brewed to perfection.',
-      price: '$3.50',
-      icon: <Coffee size={60} strokeWidth={1.5} />,
-    },
-  ];
+  const [menuItems, setMenuItems] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const res = await fetch(`${BACKEND_URL}/api/products`);
+        const json = await res.json();
+        if (json.success) {
+          setMenuItems(json.data);
+        }
+      } catch (error) {
+        console.error('Failed to fetch products', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, []);
 
   return (
     <section className="px-[5%] py-20 max-w-[1200px] mx-auto">
@@ -45,18 +46,32 @@ export default function MenuSection() {
         </p>
       </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {menuItems.map((item, index) => (
-          <MenuCard 
-            key={item.id}
-            title={item.title}
-            description={item.description}
-            price={item.price}
-            icon={item.icon}
-            delay={index * 0.1}
-          />
-        ))}
-      </div>
+      {loading ? (
+        <p className="text-center">Loading menu...</p>
+      ) : menuItems.length === 0 ? (
+        <p className="text-center text-textMuted">No products found. Add some from the Admin Panel!</p>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {menuItems.map((item, index) => (
+            <MenuCard 
+              key={item.id}
+              id={item.id}
+              title={item.name}
+              slug={item.slug}
+              description={item.description}
+              price={`₹${item.price.toFixed(2)}`}
+              icon={
+                item.imageUrl ? (
+                  <img src={item.imageUrl} alt={item.name} className="w-full h-full object-cover rounded-2xl" />
+                ) : (
+                  <Pizza size={60} strokeWidth={1.5} />
+                )
+              }
+              delay={index * 0.1}
+            />
+          ))}
+        </div>
+      )}
     </section>
   );
 }
