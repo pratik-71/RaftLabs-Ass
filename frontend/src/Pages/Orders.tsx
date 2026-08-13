@@ -31,7 +31,7 @@ export default function Orders() {
   useEffect(() => {
     fetchOrders();
     // Simulate real-time updates with polling every 5 seconds
-    const interval = setInterval(fetchOrders, 5000);
+    const interval = setInterval(fetchOrders, 3000);
     return () => clearInterval(interval);
   }, []);
 

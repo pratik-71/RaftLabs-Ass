@@ -41,7 +41,7 @@ export default function ManageOrders() {
 
   useEffect(() => {
     fetchOrders();
-    const interval = setInterval(fetchOrders, 10000); // refresh every 10s
+    const interval = setInterval(fetchOrders, 3000); // refresh every 3s
     return () => clearInterval(interval);
   }, []);
 

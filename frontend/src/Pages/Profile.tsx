@@ -47,7 +47,7 @@ export default function Profile() {
     let interval: ReturnType<typeof setInterval>;
     if (activeTab === 'orders') {
       fetchOrders();
-      interval = setInterval(fetchOrders, 10000);
+      interval = setInterval(fetchOrders, 3000);
     }
     return () => {
       if (interval) clearInterval(interval);
