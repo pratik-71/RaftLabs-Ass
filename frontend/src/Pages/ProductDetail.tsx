@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useCartStore } from '../Store/cartStore';
 import { ArrowLeft, ShoppingCart, CreditCard, Star, CheckCircle2 } from 'lucide-react';
@@ -82,7 +82,7 @@ export default function ProductDetail() {
       name: product.name,
       price: product.price,
       quantity: 1,
-      imageUrl: product.imageUrl
+      imageUrl: product.imageUrl || ''
     });
     toast.success(`${product.name} added to cart!`);
   };

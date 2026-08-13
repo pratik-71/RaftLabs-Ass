@@ -1,9 +1,7 @@
-
-import { motion } from 'framer-motion';
-import { ArrowRight, LayoutGrid, Clock, ShieldCheck, ThumbsUp, ChevronRight } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
-
 import React from 'react';
+import { motion } from 'framer-motion';
+import { ArrowRight, LayoutGrid, Clock, ShieldCheck, ThumbsUp } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const Hero = React.memo(() => {
   const navigate = useNavigate();

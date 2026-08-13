@@ -2,7 +2,7 @@ import { useState, useMemo, useCallback, useEffect } from 'react';
 import { useCartStore } from '../Store/cartStore';
 import { useAddressStore } from '../Store/addressStore';
 import { useAuthStore } from '../Store/authStore';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
 import { deliverySchema, validateData } from '../Utils/validators';
 import { BACKEND_URL } from '../Config/api';

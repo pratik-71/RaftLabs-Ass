@@ -1,8 +1,6 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useState, useEffect, useMemo } from 'react';
+import { useLocation } from 'react-router-dom';
 import { BACKEND_URL } from '../Config/api';
-import { useCartStore } from '../Store/cartStore';
-import { ShoppingCart, Zap } from 'lucide-react';
 import ProductCard from '../Components/ProductCard';
 
 export default function Products() {
@@ -11,12 +9,8 @@ export default function Products() {
   const [activeCategory, setActiveCategory] = useState<string>('All');
   
   const location = useLocation();
-  const navigate = useNavigate();
   const queryParams = new URLSearchParams(location.search);
   const searchQuery = queryParams.get('q');
-  
-  const addToCart = useCartStore((state) => state.addToCart);
-  const setBuyNowItem = useCartStore((state) => state.setBuyNowItem);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -43,15 +37,6 @@ export default function Products() {
   const filteredProducts = useMemo(() => activeCategory === 'All' 
     ? products 
     : products.filter(p => p.category === activeCategory), [products, activeCategory]);
-
-  const handleAddToCart = useCallback((product: any) => {
-    addToCart({ product_id: product.id, name: product.name, price: product.price, quantity: 1, imageUrl: product.imageUrl });
-  }, [addToCart]);
-
-  const handleBuyNow = useCallback((product: any) => {
-    setBuyNowItem({ product_id: product.id, name: product.name, price: product.price, quantity: 1, imageUrl: product.imageUrl || '' });
-    navigate('/checkout');
-  }, [setBuyNowItem, navigate]);
 
   return (
     <div className="min-h-screen bg-gray-50/50 px-6 pb-12 pt-6 md:px-12 md:pb-12 md:pt-8">
