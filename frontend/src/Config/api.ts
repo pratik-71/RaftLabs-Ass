@@ -1,3 +1,3 @@
 export const BACKEND_URL = import.meta.env.PROD 
-  ? 'https://your-production-backend.com' // Replace with your actual production backend URL
+  ? '' // Empty string so requests are relative to the Express server in production
   : 'http://localhost:5000';

@@ -1,13 +1,15 @@
 import React from 'react';
+import { Utensils } from 'lucide-react';
 
 export default function Footer() {
   return (
     <footer className="bg-textMain text-white pt-16 pb-8">
-      <div className="max-w-[1200px] mx-auto px-[5%] grid grid-cols-1 md:grid-cols-4 gap-10 border-b border-gray-700 pb-12 mb-8">
+      <div className="max-w-[1200px] mx-auto px-[5%] grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 border-b border-gray-700 pb-12 mb-8">
         
         {/* Brand */}
         <div className="col-span-1 md:col-span-1">
-          <div className="font-heading text-2xl font-extrabold text-primary mb-4">
+          <div className="flex items-center gap-2 font-heading text-2xl font-extrabold text-primary mb-4">
+            <Utensils size={26} strokeWidth={2.5} />
             Foodie
           </div>
           <p className="text-gray-400 text-sm leading-relaxed mb-6">

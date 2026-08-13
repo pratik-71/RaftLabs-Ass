@@ -1,20 +1,28 @@
-
+import React from 'react';
 import { motion } from 'framer-motion';
-import { Utensils, Check } from 'lucide-react';
+import { ArrowRight, LayoutGrid, Clock, ShieldCheck, ThumbsUp, ChevronRight } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 export default function Hero() {
+  const navigate = useNavigate();
+
   return (
-    <main className="flex items-center justify-between px-[5%] py-20 max-w-[1200px] mx-auto gap-8">
-      
-      {/* Left Content */}
-      <div className="flex-1">
+    <main 
+      className="relative w-full min-h-[600px] h-screen max-h-[900px] flex items-center px-[5%] lg:px-[8%] py-20 lg:pt-32 bg-cover bg-center bg-no-repeat overflow-hidden font-body"
+      style={{ backgroundImage: "url('/hero.png')" }}
+    >
+      {/* Optional gradient overlay to ensure text readability on mobile if the bg is too busy */}
+      <div className="absolute inset-0 bg-gradient-to-r from-white/90 via-white/50 to-transparent sm:from-white/70 sm:via-transparent sm:to-transparent pointer-events-none"></div>
+
+      <div className="relative z-10 max-w-[650px]">
         <motion.h1 
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="font-heading text-6xl text-textMain leading-[1.1] mb-6"
+          className="font-heading text-6xl md:text-7xl lg:text-[80px] font-black text-gray-900 leading-[1.1] mb-6 tracking-tight"
         >
-          Fastest <span className="text-primary">Delivery</span> & <br/>
+          Fastest <br/>
+          <span className="text-primary">Delivery &</span> <br/>
           Easy <span className="text-primary">Pickup</span>
         </motion.h1>
         
@@ -22,7 +30,7 @@ export default function Hero() {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.1 }}
-          className="text-textMuted text-lg mb-10 max-w-[450px] leading-relaxed"
+          className="text-gray-600 font-medium text-lg md:text-xl mb-10 max-w-[480px] leading-relaxed"
         >
           Discover the best food & drinks in your area. Get them delivered to your doorstep in minutes.
         </motion.p>
@@ -31,48 +39,89 @@ export default function Hero() {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.2 }}
-          className="flex gap-4"
+          className="flex flex-wrap gap-4 mb-12"
         >
-          <button className="bg-primary hover:bg-primaryHover text-white px-8 py-4 rounded-full font-semibold text-base shadow-[0_4px_14px_rgba(255,69,0,0.25)] transition-all">
-            Order Now
+          <button 
+            onClick={() => navigate('/products')}
+            className="bg-primary hover:bg-primaryHover text-white px-8 py-4 rounded-full font-bold text-base shadow-lg shadow-primary/30 transition-all flex items-center gap-2 hover:-translate-y-0.5"
+          >
+            Order Now <ArrowRight size={20} />
           </button>
-          <button className="bg-surface hover:bg-gray-50 text-textMain px-8 py-4 rounded-full font-semibold text-base border border-border transition-all">
-            Explore Menu
+          <button 
+            onClick={() => navigate('/products')}
+            className="bg-white hover:bg-gray-50 text-gray-900 px-8 py-4 rounded-full font-bold text-base shadow-md transition-all flex items-center gap-2 border border-gray-100 hover:-translate-y-0.5"
+          >
+            <LayoutGrid size={20} className="text-gray-600" /> Explore Menu
           </button>
         </motion.div>
-      </div>
 
-      {/* Right Image/Graphic */}
-      <motion.div 
-        initial={{ opacity: 0, scale: 0.9 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.6, delay: 0.3 }}
-        className="flex-1 flex justify-center relative"
-      >
-        {/* Background Blob */}
-        <div className="w-[400px] h-[400px] rounded-full bg-gradient-to-br from-primary/20 to-primary/5 absolute -z-10 top-[5%] right-[5%]"></div>
-        
-        {/* Icon Container */}
-        <div className="w-[350px] h-[350px] rounded-full bg-surface border-8 border-background shadow-[0_20px_40px_rgba(0,0,0,0.1)] flex items-center justify-center text-primary">
-          <Utensils size={120} strokeWidth={1.5} />
-        </div>
-        
-        {/* Floating badge */}
+        {/* Badges */}
         <motion.div 
-           animate={{ y: [0, -10, 0] }}
-           transition={{ repeat: Infinity, duration: 3, ease: 'easeInOut' }}
-           className="absolute bottom-[10%] left-[10%] bg-background p-4 rounded-2xl shadow-[0_10px_25px_rgba(0,0,0,0.1)] flex items-center gap-3"
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.3 }}
+          className="flex flex-wrap gap-6 md:gap-10 mb-12"
         >
-          <div className="w-10 h-10 rounded-full bg-success flex items-center justify-center text-white font-bold">
-            <Check size={20} strokeWidth={3} />
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center text-primary">
+              <Clock size={20} />
+            </div>
+            <div>
+              <div className="text-sm font-bold text-gray-900">Fast Delivery</div>
+              <div className="text-[10px] text-gray-500 font-medium">Under 30 mins</div>
+            </div>
           </div>
-          <div>
-            <div className="font-heading font-bold text-textMain">Fast Delivery</div>
-            <div className="text-sm text-textMuted">Under 30 mins</div>
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center text-green-500">
+              <ShieldCheck size={20} />
+            </div>
+            <div>
+              <div className="text-sm font-bold text-gray-900">Safe & Reliable</div>
+              <div className="text-[10px] text-gray-500 font-medium">Your safety, our priority</div>
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center text-yellow-500">
+              <ThumbsUp size={20} />
+            </div>
+            <div>
+              <div className="text-sm font-bold text-gray-900">Top Quality</div>
+              <div className="text-[10px] text-gray-500 font-medium">Best food, every time</div>
+            </div>
           </div>
         </motion.div>
 
-      </motion.div>
+        {/* Bottom Banner */}
+        <motion.div
+           initial={{ opacity: 0, y: 30 }}
+           animate={{ opacity: 1, y: 0 }}
+           transition={{ duration: 0.5, delay: 0.4 }}
+           className="bg-white/90 backdrop-blur-sm p-3 pr-4 rounded-full shadow-lg inline-flex items-center gap-4 md:gap-6 border border-white/50 cursor-pointer hover:bg-white transition-colors"
+           onClick={() => navigate('/products')}
+        >
+          <div className="pl-2">
+            <div className="text-sm font-bold text-primary">Amazing Deals & Discounts</div>
+            <div className="text-[10px] text-gray-500 font-medium">Up to 50% off on your favorite food</div>
+          </div>
+          
+          <div className="flex gap-2">
+             <div className="w-10 h-10 rounded-xl bg-gray-100 overflow-hidden border-2 border-white shadow-sm">
+                <img src="/buger.png" alt="burger" className="w-full h-full object-cover mix-blend-multiply" onError={(e) => e.currentTarget.style.display = 'none'} />
+             </div>
+             <div className="w-10 h-10 rounded-xl bg-gray-100 overflow-hidden border-2 border-white shadow-sm">
+                <img src="/pizza.png" alt="pizza" className="w-full h-full object-cover mix-blend-multiply" onError={(e) => e.currentTarget.style.display = 'none'} />
+             </div>
+             <div className="w-10 h-10 rounded-xl bg-gray-100 overflow-hidden border-2 border-white shadow-sm">
+                <img src="/coffee.png" alt="coffee" className="w-full h-full object-cover mix-blend-multiply" onError={(e) => e.currentTarget.style.display = 'none'} />
+             </div>
+          </div>
+
+          <button className="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center hover:bg-primaryHover transition-colors ml-2 shadow-sm shrink-0">
+            <ChevronRight size={16} />
+          </button>
+        </motion.div>
+
+      </div>
     </main>
   );
 }

@@ -36,7 +36,7 @@ export default function Login() {
   return (
     <div className="min-h-screen flex">
       {/* Left Form Side */}
-      <div className="w-full lg:w-1/2 flex flex-col justify-center px-12 sm:px-24 lg:px-32 bg-surface">
+      <div className="w-full lg:w-1/2 flex flex-col justify-center px-6 sm:px-12 md:px-24 lg:px-24 xl:px-32 bg-surface">
         <div className="max-w-sm w-full mx-auto">
           
           <h2 className="font-heading text-3xl font-bold text-textMain mb-6">Login</h2>

@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import Navbar from '../Components/Navbar';
-import Footer from '../Components/Footer';
+
 import { useAuthStore } from '../Store/authStore';
 import { useAddressStore } from '../Store/addressStore';
 import { BACKEND_URL } from '../Config/api';
@@ -78,45 +77,44 @@ export default function Profile() {
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50 font-body">
-      <Navbar />
-      <main className="flex-1 py-10 px-[5%] max-w-[1000px] mx-auto w-full flex flex-col md:flex-row gap-8">
+      <main className="flex-1 py-10 px-4 sm:px-6 lg:px-12 max-w-[1600px] mx-auto w-full flex flex-col lg:flex-row gap-8 lg:gap-12">
         
         {/* Sidebar */}
-        <div className="w-full md:w-64 shrink-0">
+        <div className="w-full lg:w-80 shrink-0">
           <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 sticky top-24">
             <div className="flex items-center gap-3 mb-8">
               <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center">
                 <User size={20} className="text-gray-600" />
               </div>
-              <div>
-                <h2 className="font-bold text-gray-900 line-clamp-1">{user?.user_metadata?.username || 'My Account'}</h2>
-                <p className="text-xs text-gray-500">{user?.email || 'Manage your details'}</p>
+              <div className="flex-1 min-w-0">
+                <h2 className="font-bold text-gray-900 truncate">{user?.user_metadata?.username || 'My Account'}</h2>
+                <p className="text-xs text-gray-500 truncate">{user?.email || 'Manage your details'}</p>
               </div>
             </div>
 
             <nav className="space-y-2">
               <button 
                 onClick={() => setActiveTab('addresses')}
-                className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold transition-colors ${
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-colors ${
                   activeTab === 'addresses' ? 'bg-gray-900 text-white shadow-md' : 'text-gray-600 hover:bg-gray-100'
                 }`}
               >
-                <MapPin size={16} /> Saved Addresses
+                <MapPin size={18} /> Saved Addresses
               </button>
               <button 
                 onClick={() => setActiveTab('orders')}
-                className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold transition-colors ${
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-colors ${
                   activeTab === 'orders' ? 'bg-gray-900 text-white shadow-md' : 'text-gray-600 hover:bg-gray-100'
                 }`}
               >
-                <Package size={16} /> Order History
+                <Package size={18} /> Order History
               </button>
             </nav>
           </div>
         </div>
 
         {/* Content Area */}
-        <div className="flex-1">
+        <div className="flex-1 min-w-0">
           
           {/* Addresses Tab */}
           {activeTab === 'addresses' && (
@@ -298,7 +296,6 @@ export default function Profile() {
 
         </div>
       </main>
-      <Footer />
     </div>
   );
 }

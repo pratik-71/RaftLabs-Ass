@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import Navbar from '../Components/Navbar';
-import Footer from '../Components/Footer';
+
 import { BACKEND_URL } from '../Config/api';
 
 interface Order {
@@ -48,7 +47,6 @@ export default function Orders() {
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
-      <Navbar />
       <main className="flex-1 py-20 px-[5%] max-w-[1200px] mx-auto w-full">
         <h1 className="text-4xl font-heading font-extrabold text-textMain mb-8">Your Orders</h1>
         
@@ -60,7 +58,7 @@ export default function Orders() {
           <div className="space-y-6">
             {orders.map(order => (
               <div key={order.id} className="bg-surface p-6 rounded-2xl shadow-sm border border-border">
-                <div className="flex justify-between items-center mb-4">
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 sm:gap-0 mb-4">
                   <h3 className="font-bold text-xl">Order #{order.id}</h3>
                   <span className={`px-4 py-1 rounded-full font-bold text-sm ${getStatusColor(order.status)}`}>
                     {order.status}
@@ -84,7 +82,6 @@ export default function Orders() {
           </div>
         )}
       </main>
-      <Footer />
     </div>
   );
 }

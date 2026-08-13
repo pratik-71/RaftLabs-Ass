@@ -1,7 +1,5 @@
 const { orderSchema, validateData } = require('../utils/validators');
-
-// In-memory database for orders
-let orders = [];
+const supabase = require('../config/db');
 
 // @desc    Create a new order
 // @route   POST /api/orders
@@ -22,16 +20,17 @@ exports.createOrder = async (req, res) => {
     const trackingNumber = 'TRK-' + Math.random().toString(36).substring(2, 10).toUpperCase();
 
     const order = {
-      id: orders.length ? Math.max(...orders.map(o => o.id)) + 1 : 1,
       tracking_number: trackingNumber,
       ...cleanOrder,
-      status: 'Order Received', // Initial status
-      createdAt: new Date().toISOString()
+      status: 'Order Received'
     };
 
-    orders.push(order);
-    res.status(201).json({ success: true, data: order });
+    const { data, error } = await supabase.from('orders').insert([order]).select().single();
+    if (error) throw error;
+
+    res.status(201).json({ success: true, data });
   } catch (error) {
+    console.error('Error creating order:', error);
     res.status(500).json({ success: false, error: 'Server Error' });
   }
 };
@@ -42,9 +41,12 @@ exports.createOrder = async (req, res) => {
 exports.getOrders = async (req, res) => {
   try {
     // Sort so newest are first
-    const sortedOrders = [...orders].reverse();
-    res.status(200).json({ success: true, data: sortedOrders });
+    const { data, error } = await supabase.from('orders').select('*').order('id', { ascending: false });
+    if (error) throw error;
+    
+    res.status(200).json({ success: true, data });
   } catch (error) {
+    console.error('Error fetching orders:', error);
     res.status(500).json({ success: false, error: 'Server Error' });
   }
 };
@@ -55,14 +57,15 @@ exports.getOrders = async (req, res) => {
 exports.getOrderById = async (req, res) => {
   try {
     const id = parseInt(req.params.id);
-    const order = orders.find(o => o.id === id);
+    const { data, error } = await supabase.from('orders').select('*').eq('id', id).single();
     
-    if (!order) {
+    if (error || !data) {
       return res.status(404).json({ success: false, error: 'Order not found' });
     }
     
-    res.status(200).json({ success: true, data: order });
+    res.status(200).json({ success: true, data });
   } catch (error) {
+    console.error('Error fetching order by ID:', error);
     res.status(500).json({ success: false, error: 'Server Error' });
   }
 };
@@ -75,14 +78,15 @@ exports.updateOrderStatus = async (req, res) => {
     const id = parseInt(req.params.id);
     const { status } = req.body;
     
-    const index = orders.findIndex(o => o.id === id);
-    if (index === -1) {
+    const { data, error } = await supabase.from('orders').update({ status }).eq('id', id).select().single();
+    
+    if (error || !data) {
       return res.status(404).json({ success: false, error: 'Order not found' });
     }
     
-    orders[index] = { ...orders[index], status };
-    res.status(200).json({ success: true, data: orders[index] });
+    res.status(200).json({ success: true, data });
   } catch (error) {
+    console.error('Error updating order status:', error);
     res.status(500).json({ success: false, error: 'Server Error' });
   }
 };

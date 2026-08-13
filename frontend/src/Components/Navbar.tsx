@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { ShoppingBag, Search, Menu, X, User as UserIcon, LogOut, ShoppingCart } from 'lucide-react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { ShoppingBag, Search, Menu, X, User as UserIcon, LogOut, ShoppingCart, Utensils } from 'lucide-react';
 import { BACKEND_URL } from '../Config/api';
 import { useAuthStore } from '../Store/authStore';
 import { useCartStore } from '../Store/cartStore';
@@ -10,12 +10,19 @@ export default function Navbar() {
   const user = useAuthStore((state) => state.user);
   const cartItemsCount = useCartStore((state) => state.items.reduce((total, item) => total + item.quantity, 0));
   const navigate = useNavigate();
+  const location = useLocation();
+  const isHome = location.pathname === '/';
   
   const [searchQuery, setSearchQuery] = useState('');
   const [suggestions, setSuggestions] = useState<any[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const searchRef = useRef<HTMLDivElement>(null);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  useEffect(() => {
+    setIsMobileMenuOpen(false);
+  }, [location.pathname]);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -70,17 +77,24 @@ export default function Navbar() {
     }
   };
 
-  const textColorClass = isScrolled ? "text-gray-200 hover:text-white" : "text-textMain hover:text-primary";
-  const iconColorClass = isScrolled ? "text-gray-200 hover:text-white" : "text-textMain hover:text-primary";
+  const textColorClass = isScrolled ? "text-gray-900 hover:text-primary" : (isHome ? "text-gray-900 hover:text-primary" : "text-textMain hover:text-primary");
+  const iconColorClass = isScrolled ? "text-gray-900 hover:text-primary" : (isHome ? "text-gray-900 hover:text-primary" : "text-textMain hover:text-primary");
 
   return (
-    <nav className={`flex justify-between items-center px-[5%] transition-all duration-300 border-b sticky top-0 z-50 ${
-      isScrolled 
-        ? 'py-2.5 bg-gray-900 border-gray-800 shadow-lg' 
-        : 'py-3.5 bg-background border-border'
+    <nav className={`w-full flex justify-between items-center px-[5%] transition-all duration-300 z-50 fixed top-0 left-0 ${
+      isHome && !isScrolled
+        ? 'py-4 md:py-5 bg-transparent'
+        : 'border-b ' + (isScrolled ? 'py-3 bg-white shadow-md border-gray-100' : 'py-3.5 bg-background border-border')
     }`}>
-      <div className="flex items-center gap-8">
-        <Link to="/" className={`font-heading text-2xl font-extrabold ${isScrolled ? 'text-white' : 'text-primary'} transition-colors`}>
+      <div className="flex items-center gap-3 md:gap-8">
+        <button 
+          className={`md:hidden p-1 transition-colors ${iconColorClass}`}
+          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+        >
+          {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+        </button>
+        <Link to="/" className={`flex items-center gap-1.5 md:gap-2 font-heading text-xl md:text-2xl font-black text-primary transition-colors hover:opacity-80`}>
+          <Utensils className="w-5 h-5 md:w-[26px] md:h-[26px]" strokeWidth={2.5} />
           Foodie
         </Link>
         <div className="hidden md:flex items-center gap-6">
@@ -107,13 +121,13 @@ export default function Navbar() {
                 setShowSuggestions(true);
               }}
               onFocus={() => setShowSuggestions(true)}
-              className={`pl-10 pr-4 py-1.5 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-primary w-48 lg:w-64 transition-all ${
+              className={`pl-10 pr-4 py-2 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-primary w-48 lg:w-72 transition-all shadow-sm ${
                 isScrolled 
-                  ? 'bg-gray-800 border-gray-700 text-white placeholder-gray-400 focus:bg-gray-700' 
-                  : 'bg-surface border-border text-textMain'
+                  ? 'bg-gray-50 border border-gray-200 text-gray-900 placeholder-gray-400 focus:bg-white' 
+                  : (isHome ? 'bg-white/80 backdrop-blur-sm border border-white/50 text-gray-900 placeholder-gray-500' : 'bg-surface border-border text-textMain')
               }`}
             />
-            <Search size={16} className={`absolute left-3 top-1/2 -translate-y-1/2 ${isScrolled ? 'text-gray-400' : 'text-textMuted'}`} />
+            <Search size={16} className={`absolute left-3 top-1/2 -translate-y-1/2 ${isScrolled || isHome ? 'text-gray-500' : 'text-textMuted'}`} />
           </form>
 
           {showSuggestions && suggestions.length > 0 && (
@@ -147,9 +161,7 @@ export default function Navbar() {
         <Link to="/cart" className={`p-2 rounded-full transition-colors relative ${iconColorClass} ${isScrolled ? 'hover:bg-gray-800' : 'hover:bg-surface'}`}>
           <ShoppingCart size={20} />
           {cartItemsCount > 0 && (
-            <span className={`absolute top-0 right-0 text-[10px] font-bold w-4 h-4 flex items-center justify-center rounded-full ${
-              isScrolled ? 'bg-white text-gray-900' : 'bg-primary text-white'
-            }`}>
+            <span className={`absolute top-0 right-0 text-[10px] font-bold w-4 h-4 flex items-center justify-center rounded-full bg-primary text-white`}>
               {cartItemsCount}
             </span>
           )}
@@ -183,15 +195,29 @@ export default function Navbar() {
             </div>
           </>
         ) : (
-          <div className="flex items-center ml-2">
+          <div className="hidden sm:flex items-center ml-2">
             <Link to="/login" className={`font-semibold mr-6 transition-colors text-sm sm:text-base ${textColorClass}`}>
               Log in
             </Link>
-            <Link to="/signup" className={`px-4 sm:px-6 py-1.5 sm:py-2 rounded-full font-semibold transition-colors text-sm sm:text-base ${
-              isScrolled ? 'bg-white text-gray-900 hover:bg-gray-200' : 'bg-primary text-white hover:bg-primaryHover'
+            <Link to="/signup" className={`px-4 sm:px-6 py-2 rounded-full font-bold transition-all text-sm sm:text-base shadow-sm ${
+              isScrolled ? 'bg-primary text-white hover:bg-primaryHover' : 'bg-primary text-white hover:bg-primaryHover'
             }`}>
               Sign up
             </Link>
+          </div>
+        )}
+      </div>
+
+      {/* Mobile Menu Dropdown */}
+      <div className={`absolute top-full left-0 w-full bg-white shadow-xl border-t border-gray-100 flex flex-col overflow-hidden transition-all duration-300 md:hidden z-40 ${
+        isMobileMenuOpen ? 'max-h-[400px] border-t' : 'max-h-0 border-transparent border-none'
+      }`}>
+        <Link to="/" className="p-4 text-gray-900 font-bold border-b border-gray-50 hover:bg-gray-50 transition-colors">Home</Link>
+        <Link to="/products" className="p-4 text-gray-900 font-bold border-b border-gray-50 hover:bg-gray-50 transition-colors">Products</Link>
+        {!user && (
+          <div className="flex gap-4 p-4 mt-2">
+            <Link to="/login" className="flex-1 text-center py-2.5 border border-gray-200 rounded-lg font-bold text-gray-900 hover:bg-gray-50 transition-colors">Log in</Link>
+            <Link to="/signup" className="flex-1 text-center py-2.5 bg-primary hover:bg-primaryHover text-white rounded-lg font-bold transition-colors">Sign up</Link>
           </div>
         )}
       </div>

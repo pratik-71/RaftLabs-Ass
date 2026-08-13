@@ -1,8 +1,7 @@
 import React, { useState, useRef, useEffect, useMemo, useCallback } from 'react';
 import { useCartStore } from '../Store/cartStore';
 import { useAddressStore } from '../Store/addressStore';
-import Navbar from '../Components/Navbar';
-import Footer from '../Components/Footer';
+
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
 import { deliverySchema, validateData } from '../Utils/validators';
@@ -79,7 +78,6 @@ export default function Cart() {
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50 font-body">
-      <Navbar />
       <main className="flex-1 py-8 px-[5%] max-w-[1200px] mx-auto w-full">
         <h1 className="text-3xl font-heading font-bold text-gray-900 mb-6 flex items-center gap-2">
           <ShoppingBag size={24} /> Checkout
@@ -291,7 +289,6 @@ export default function Cart() {
           </div>
         )}
       </main>
-      <Footer />
     </div>
   );
 }

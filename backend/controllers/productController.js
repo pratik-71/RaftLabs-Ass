@@ -1,7 +1,5 @@
 const { productSchema, validateData } = require('../utils/validators');
-
-// In-memory database for products
-let products = [];
+const supabase = require('../config/db');
 
 // @desc    Get all products (with optional search query)
 // @route   GET /api/products
@@ -9,22 +7,23 @@ let products = [];
 exports.getProducts = async (req, res) => {
   try {
     const { q } = req.query;
-    let results = products;
-
+    let query = supabase.from('products').select('*');
+    
     if (q) {
       const search = q.toLowerCase();
-      results = products.filter(p => 
-        p.name.toLowerCase().includes(search) || 
-        p.description.toLowerCase().includes(search) ||
-        p.category.toLowerCase().includes(search)
-      );
+      // Searching name, description, category. Supabase ilike is case-insensitive.
+      query = query.or(`name.ilike.%${search}%,description.ilike.%${search}%,category.ilike.%${search}%`);
     }
     
-    // Sort so newest are first
-    const sortedResults = [...results].reverse();
+    // Sort so newest are first by id descending (assuming id is primary key)
+    query = query.order('id', { ascending: false });
     
-    res.status(200).json({ success: true, data: sortedResults });
+    const { data, error } = await query;
+    if (error) throw error;
+    
+    res.status(200).json({ success: true, data });
   } catch (error) {
+    console.error('Error fetching products:', error);
     res.status(500).json({ success: false, error: 'Server Error' });
   }
 };
@@ -35,14 +34,15 @@ exports.getProducts = async (req, res) => {
 exports.getProductBySlug = async (req, res) => {
   try {
     const { slug } = req.params;
-    const product = products.find(p => p.slug === slug);
+    const { data, error } = await supabase.from('products').select('*').eq('slug', slug).single();
     
-    if (!product) {
+    if (error || !data) {
       return res.status(404).json({ success: false, error: 'Product not found' });
     }
     
-    res.status(200).json({ success: true, data: product });
+    res.status(200).json({ success: true, data });
   } catch (error) {
+    console.error('Error fetching product by slug:', error);
     res.status(500).json({ success: false, error: 'Server Error' });
   }
 };
@@ -60,18 +60,20 @@ exports.addProduct = async (req, res) => {
       return res.status(400).json({ success: false, error: validation.error });
     }
     
-    // Use validated data to ensure clean types
     const cleanProduct = validation.data;
-    cleanProduct.id = products.length ? Math.max(...products.map(p => p.id)) + 1 : 1;
     
     // Auto-generate slug if not provided
     if (!cleanProduct.slug) {
       cleanProduct.slug = cleanProduct.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
     }
     
-    products.push(cleanProduct);
-    res.status(201).json({ success: true, data: cleanProduct });
+    const { data, error } = await supabase.from('products').insert([cleanProduct]).select().single();
+    
+    if (error) throw error;
+    
+    res.status(201).json({ success: true, data });
   } catch (error) {
+    console.error('Error adding product:', error);
     res.status(500).json({ success: false, error: 'Server Error' });
   }
 };
@@ -84,8 +86,9 @@ exports.updateProduct = async (req, res) => {
     const id = parseInt(req.params.id);
     const updateData = req.body;
     
-    const index = products.findIndex(p => p.id === id);
-    if (index === -1) {
+    // Fetch existing
+    const { data: existing, error: fetchError } = await supabase.from('products').select('*').eq('id', id).single();
+    if (fetchError || !existing) {
       return res.status(404).json({ success: false, error: 'Product not found' });
     }
     
@@ -95,10 +98,15 @@ exports.updateProduct = async (req, res) => {
     }
 
     // Merge existing with updates before validating
-    const mergedData = { ...products[index], ...updateData };
+    const mergedData = { ...existing, ...updateData };
+    
+    // Clean id and timestamps out for validation if schema doesn't expect it
+    const dataToValidate = { ...mergedData };
+    delete dataToValidate.id;
+    delete dataToValidate.created_at;
     
     // Validate merged data
-    const validation = validateData(productSchema, mergedData);
+    const validation = validateData(productSchema, dataToValidate);
     if (!validation.success) {
       return res.status(400).json({ success: false, error: validation.error });
     }
@@ -108,9 +116,13 @@ exports.updateProduct = async (req, res) => {
       cleanProduct.slug = cleanProduct.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
     }
 
-    products[index] = cleanProduct;
-    res.status(200).json({ success: true, data: products[index] });
+    const { data, error } = await supabase.from('products').update(cleanProduct).eq('id', id).select().single();
+    
+    if (error) throw error;
+    
+    res.status(200).json({ success: true, data });
   } catch (error) {
+    console.error('Error updating product:', error);
     res.status(500).json({ success: false, error: 'Server Error' });
   }
 };
@@ -121,9 +133,12 @@ exports.updateProduct = async (req, res) => {
 exports.deleteProduct = async (req, res) => {
   try {
     const id = parseInt(req.params.id);
-    products = products.filter(p => p.id !== id);
+    const { error } = await supabase.from('products').delete().eq('id', id);
+    if (error) throw error;
+    
     res.status(200).json({ success: true, data: {} });
   } catch (error) {
+    console.error('Error deleting product:', error);
     res.status(500).json({ success: false, error: 'Server Error' });
   }
 };
