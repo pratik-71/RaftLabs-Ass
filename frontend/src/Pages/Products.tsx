@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { BACKEND_URL } from '../Config/api';
 import { useCartStore } from '../Store/cartStore';
@@ -15,6 +15,7 @@ export default function Products() {
   const searchQuery = queryParams.get('q');
   
   const addToCart = useCartStore((state) => state.addToCart);
+  const setBuyNowItem = useCartStore((state) => state.setBuyNowItem);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -36,11 +37,20 @@ export default function Products() {
     fetchProducts();
   }, [searchQuery]);
 
-  const categories = ['All', ...Array.from(new Set(products.map(p => p.category)))];
+  const categories = useMemo(() => ['All', ...Array.from(new Set(products.map(p => p.category)))], [products]);
   
-  const filteredProducts = activeCategory === 'All' 
+  const filteredProducts = useMemo(() => activeCategory === 'All' 
     ? products 
-    : products.filter(p => p.category === activeCategory);
+    : products.filter(p => p.category === activeCategory), [products, activeCategory]);
+
+  const handleAddToCart = useCallback((product: any) => {
+    addToCart({ product_id: product.id, name: product.name, price: product.price, quantity: 1, imageUrl: product.imageUrl });
+  }, [addToCart]);
+
+  const handleBuyNow = useCallback((product: any) => {
+    setBuyNowItem({ product_id: product.id, name: product.name, price: product.price, quantity: 1, imageUrl: product.imageUrl || '' });
+    navigate('/checkout');
+  }, [setBuyNowItem, navigate]);
 
   return (
     <div className="min-h-screen bg-gray-50/50 px-6 pb-12 pt-6 md:px-12 md:pb-12 md:pt-8">
@@ -113,16 +123,13 @@ export default function Products() {
                   
                   <div className="flex gap-3 mt-auto">
                     <button 
-                      onClick={() => addToCart({ product_id: product.id, name: product.name, price: product.price, quantity: 1, imageUrl: product.imageUrl })}
+                      onClick={() => handleAddToCart(product)}
                       className="w-12 h-12 shrink-0 bg-white border border-gray-200 hover:border-primary hover:text-primary text-gray-600 rounded-xl flex items-center justify-center transition-colors duration-200"
                     >
                       <ShoppingCart size={20} strokeWidth={2.5} />
                     </button>
                     <button 
-                      onClick={() => {
-                        addToCart({ product_id: product.id, name: product.name, price: product.price, quantity: 1, imageUrl: product.imageUrl });
-                        navigate('/cart');
-                      }}
+                      onClick={() => handleBuyNow(product)}
                       className="flex-1 h-12 bg-gray-900 hover:bg-primary text-white font-bold rounded-xl flex items-center justify-center gap-2 transition-colors duration-200 shadow-md shadow-gray-900/10"
                     >
                       <Zap size={18} fill="currentColor" /> Buy Now

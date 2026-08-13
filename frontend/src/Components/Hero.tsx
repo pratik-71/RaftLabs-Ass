@@ -1,9 +1,11 @@
-import React from 'react';
+
 import { motion } from 'framer-motion';
 import { ArrowRight, LayoutGrid, Clock, ShieldCheck, ThumbsUp, ChevronRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
-export default function Hero() {
+import React from 'react';
+
+const Hero = React.memo(() => {
   const navigate = useNavigate();
 
   return (
@@ -122,6 +124,8 @@ export default function Hero() {
         </motion.div>
 
       </div>
-    </main>
+    </section>
   );
-}
+});
+
+export default Hero;

@@ -10,12 +10,13 @@ interface MenuCardProps {
   price: string;
   icon: React.ReactNode;
   delay?: number;
+  imageUrl?: string;
 }
 
 import { useCartStore } from '../Store/cartStore';
 import { useNavigate } from 'react-router-dom';
 
-export default function MenuCard({ id, title, slug, description, price, icon, delay = 0 }: MenuCardProps) {
+const MenuCard = React.memo(({ id, title, slug, description, price, icon, delay = 0, imageUrl }: MenuCardProps) => {
   const addToCart = useCartStore((state) => state.addToCart);
   const navigate = useNavigate();
   const numPrice = parseFloat(price.replace(/[^0-9.-]+/g,""));
@@ -56,7 +57,7 @@ export default function MenuCard({ id, title, slug, description, price, icon, de
       
       <div className="flex gap-2 w-full">
         <button 
-          onClick={() => addToCart({ product_id: id, name: title, price: numPrice, quantity: 1, imageUrl: '' })}
+          onClick={() => addToCart({ product_id: id, name: title, price: numPrice, quantity: 1, imageUrl: imageUrl || '' })}
           className="flex-1 py-3 rounded-xl border border-border flex items-center justify-center gap-2 font-semibold text-textMain hover:bg-primary hover:text-white hover:border-primary transition-colors"
         >
           <ShoppingCart size={18} /> Add
@@ -74,4 +75,6 @@ export default function MenuCard({ id, title, slug, description, price, icon, de
       </div>
     </motion.div>
   );
-}
+});
+
+export default MenuCard;

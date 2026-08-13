@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import MenuCard from './MenuCard';
 import { Pizza } from 'lucide-react'; // Fallback icon
 import { BACKEND_URL } from '../Config/api';
@@ -68,6 +68,7 @@ export default function MenuSection() {
                 )
               }
               delay={index * 0.1}
+              imageUrl={item.imageUrl}
             />
           ))}
         </div>

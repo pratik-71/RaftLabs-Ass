@@ -1,7 +1,8 @@
+
 import React from 'react';
 import { Utensils } from 'lucide-react';
 
-export default function Footer() {
+const Footer = React.memo(() => {
   return (
     <footer className="bg-textMain text-white pt-16 pb-8">
       <div className="max-w-[1200px] mx-auto px-[5%] grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 border-b border-gray-700 pb-12 mb-8">
@@ -55,4 +56,6 @@ export default function Footer() {
       </div>
     </footer>
   );
-}
+});
+
+export default Footer;

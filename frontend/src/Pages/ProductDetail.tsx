@@ -20,6 +20,7 @@ export default function ProductDetail() {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
   const addToCart = useCartStore((state) => state.addToCart);
+  const setBuyNowItem = useCartStore((state) => state.setBuyNowItem);
   
   const [product, setProduct] = useState<Product | null>(null);
   const [otherProducts, setOtherProducts] = useState<Product[]>([]);
@@ -84,8 +85,14 @@ export default function ProductDetail() {
   };
 
   const handleBuyNow = () => {
-    handleAddToCart();
-    navigate('/cart');
+    setBuyNowItem({ 
+      product_id: product.id, 
+      name: product.name, 
+      price: product.price, 
+      quantity: 1, 
+      imageUrl: product.imageUrl || ''
+    });
+    navigate('/checkout');
   };
 
   return (

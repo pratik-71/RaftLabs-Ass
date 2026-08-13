@@ -1,18 +1,27 @@
-import React, { useEffect } from 'react';
+import { useEffect, Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route, Outlet } from 'react-router-dom';
-import Home from './Pages/Home';
-import Login from './Pages/Login';
-import Signup from './Pages/Signup';
-import Products from './Pages/Products';
-import Admin from './Pages/Admin';
-import Cart from './Pages/Cart';
-import Orders from './Pages/Orders';
-import ProductDetail from './Pages/ProductDetail';
-import Profile from './Pages/Profile';
 import { supabase } from './Config/supabase';
 import { useAuthStore } from './Store/authStore';
 import { Toaster } from 'react-hot-toast';
 import Layout from './Components/Layout';
+
+// Lazy loaded pages
+const Home = lazy(() => import('./Pages/Home'));
+const Login = lazy(() => import('./Pages/Login'));
+const Signup = lazy(() => import('./Pages/Signup'));
+const Products = lazy(() => import('./Pages/Products'));
+const Admin = lazy(() => import('./Pages/Admin'));
+const Cart = lazy(() => import('./Pages/Cart'));
+const Checkout = lazy(() => import('./Pages/Checkout'));
+const Orders = lazy(() => import('./Pages/Orders'));
+const ProductDetail = lazy(() => import('./Pages/ProductDetail'));
+const Profile = lazy(() => import('./Pages/Profile'));
+
+const FallbackLoader = () => (
+  <div className="min-h-screen flex items-center justify-center bg-gray-50">
+    <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+  </div>
+);
 
 const MainLayout = () => {
   return (
@@ -53,22 +62,25 @@ function App() {
         }} 
       />
       <Router>
-        <Routes>
-          {/* Routes with Navbar and Footer */}
-          <Route element={<MainLayout />}>
-            <Route path="/" element={<Home />} />
-            <Route path="/products" element={<Products />} />
-            <Route path="/product/:slug" element={<ProductDetail />} />
-            <Route path="/cart" element={<Cart />} />
-            <Route path="/orders" element={<Orders />} />
-            <Route path="/profile" element={<Profile />} />
-            <Route path="/admin_pratik" element={<Admin />} />
-          </Route>
+        <Suspense fallback={<FallbackLoader />}>
+          <Routes>
+            {/* Routes with Navbar and Footer */}
+            <Route element={<MainLayout />}>
+              <Route path="/" element={<Home />} />
+              <Route path="/products" element={<Products />} />
+              <Route path="/product/:slug" element={<ProductDetail />} />
+              <Route path="/cart" element={<Cart />} />
+              <Route path="/checkout" element={<Checkout />} />
+              <Route path="/orders" element={<Orders />} />
+              <Route path="/profile" element={<Profile />} />
+              <Route path="/admin_pratik" element={<Admin />} />
+            </Route>
 
-          {/* Authentication Routes (No Navbar/Footer) */}
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<Signup />} />
-        </Routes>
+            {/* Authentication Routes (No Navbar/Footer) */}
+            <Route path="/login" element={<Login />} />
+            <Route path="/signup" element={<Signup />} />
+          </Routes>
+        </Suspense>
       </Router>
     </>
   );
