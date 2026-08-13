@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
-import { Package, Plus } from 'lucide-react';
+import { Package, Plus, ClipboardList } from 'lucide-react';
 import AddProduct from './Components/AddProduct';
 import ViewProducts from './Components/ViewProducts';
+import ManageOrders from './Components/ManageOrders';
 
 export default function Admin() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const [activeTab, setActiveTab] = useState<'view' | 'add'>('view');
+  const [activeTab, setActiveTab] = useState<'view' | 'add' | 'orders'>('orders');
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
@@ -55,7 +56,7 @@ export default function Admin() {
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
           <div>
             <h1 className="text-3xl font-bold font-heading text-textMain">Admin Dashboard</h1>
-            <p className="text-textMuted mt-1">Manage your products and inventory</p>
+            <p className="text-textMuted mt-1">Manage your products, inventory, and incoming orders</p>
           </div>
           <button 
             onClick={() => setIsAuthenticated(false)}
@@ -66,7 +67,16 @@ export default function Admin() {
         </div>
 
         {/* Tabs */}
-        <div className="flex border-b border-border mb-8 overflow-x-auto">
+        <div className="flex border-b border-border mb-8 overflow-x-auto hide-scrollbar gap-2">
+          <button
+            onClick={() => setActiveTab('orders')}
+            className={`flex items-center gap-2 px-6 py-3 font-semibold transition-colors border-b-2 whitespace-nowrap ${
+              activeTab === 'orders' ? 'border-primary text-primary' : 'border-transparent text-textMuted hover:text-textMain'
+            }`}
+          >
+            <ClipboardList size={20} />
+            Manage Orders
+          </button>
           <button
             onClick={() => setActiveTab('view')}
             className={`flex items-center gap-2 px-6 py-3 font-semibold transition-colors border-b-2 whitespace-nowrap ${
@@ -88,8 +98,10 @@ export default function Admin() {
         </div>
 
         {/* Tab Content */}
-        <div className="bg-background rounded-xl p-6 shadow-sm border border-border">
-          {activeTab === 'view' ? <ViewProducts /> : <AddProduct />}
+        <div className="bg-background rounded-xl p-6 shadow-sm border border-border overflow-hidden">
+          {activeTab === 'orders' && <ManageOrders />}
+          {activeTab === 'view' && <ViewProducts />}
+          {activeTab === 'add' && <AddProduct />}
         </div>
       </div>
     </div>

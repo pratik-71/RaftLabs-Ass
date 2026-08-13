@@ -44,9 +44,14 @@ export default function Profile() {
   };
 
   useEffect(() => {
+    let interval: ReturnType<typeof setInterval>;
     if (activeTab === 'orders') {
       fetchOrders();
+      interval = setInterval(fetchOrders, 10000);
     }
+    return () => {
+      if (interval) clearInterval(interval);
+    };
   }, [activeTab]);
 
   const handleAddAddress = (e: React.FormEvent) => {
@@ -208,44 +213,84 @@ export default function Profile() {
                   <p className="text-sm text-gray-500">You haven't placed any orders yet.</p>
                 </div>
               ) : (
-                <div className="space-y-4">
-                  {orders.map(order => (
-                    <div key={order.id} className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 transition-all hover:shadow-md">
-                      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 pb-4 border-b border-gray-50 gap-3">
-                        <div>
-                          <h3 className="font-bold text-sm text-gray-900 flex items-center gap-2">
-                            Order #{order.id}
-                            {order.tracking_number && (
-                              <span className="text-[10px] font-mono bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded">
-                                {order.tracking_number}
-                              </span>
-                            )}
-                          </h3>
-                          <p className="text-xs text-gray-400 mt-1">{new Date(order.createdAt).toLocaleString()}</p>
-                        </div>
-                        <span className={`px-3 py-1 rounded-full text-xs font-bold border ${getStatusColor(order.status)}`}>
-                          {order.status}
-                        </span>
-                      </div>
-                      
-                      <div className="space-y-2 mb-4">
-                        {order.items.map((item: any, idx: number) => (
-                          <div key={idx} className="flex justify-between items-center text-sm">
-                            <div className="flex items-center gap-2">
-                              <span className="text-xs font-bold text-gray-400">{item.quantity}x</span>
-                              <span className="font-medium text-gray-700">{item.name}</span>
-                            </div>
-                            <span className="text-gray-600 font-medium">₹{(item.price * item.quantity).toFixed(2)}</span>
+                <div className="space-y-6">
+                  {orders.map(order => {
+                    const statuses = ['Order Received', 'Preparing', 'Out for Delivery', 'Delivered'];
+                    const currentStatusIndex = statuses.findIndex(s => s.toLowerCase() === order.status.toLowerCase());
+                    
+                    return (
+                      <div key={order.id} className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 transition-all hover:shadow-md">
+                        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-3">
+                          <div>
+                            <h3 className="font-bold text-sm text-gray-900 flex items-center gap-2">
+                              Order #{order.id}
+                              {order.tracking_number && (
+                                <span className="text-[10px] font-mono bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded">
+                                  {order.tracking_number}
+                                </span>
+                              )}
+                            </h3>
+                            <p className="text-xs text-gray-400 mt-1">{new Date(order.createdAt).toLocaleString()}</p>
                           </div>
-                        ))}
+                          <span className={`px-3 py-1 rounded-full text-xs font-bold border ${getStatusColor(order.status)}`}>
+                            {order.status}
+                          </span>
+                        </div>
+                        
+                        {/* Horizontal Status Tracking (Amazon Style) */}
+                        <div className="mb-8 px-2 sm:px-6">
+                          <div className="relative flex justify-between">
+                            {/* Background Line */}
+                            <div className="absolute top-1/2 left-0 w-full h-1 bg-gray-100 -translate-y-1/2 rounded-full z-0"></div>
+                            
+                            {/* Active Line */}
+                            <div 
+                              className="absolute top-1/2 left-0 h-1 bg-primary -translate-y-1/2 rounded-full z-0 transition-all duration-500"
+                              style={{ width: `${Math.max(0, (currentStatusIndex / (statuses.length - 1)) * 100)}%` }}
+                            ></div>
+
+                            {statuses.map((status, index) => {
+                              const isActive = index <= currentStatusIndex;
+                              const isCurrent = index === currentStatusIndex;
+                              return (
+                                <div key={status} className="relative z-10 flex flex-col items-center gap-2">
+                                  <div className={`w-5 h-5 sm:w-6 sm:h-6 rounded-full flex items-center justify-center border-2 transition-all duration-500 ${
+                                    isActive 
+                                      ? 'bg-primary border-primary text-white shadow-sm' 
+                                      : 'bg-white border-gray-200 text-transparent'
+                                  }`}>
+                                    <CheckCircle size={12} className={isActive ? 'opacity-100' : 'opacity-0'} />
+                                  </div>
+                                  <span className={`absolute top-full mt-2 text-[10px] sm:text-xs font-bold text-center w-20 sm:w-24 -ml-10 sm:-ml-12 left-1/2 ${
+                                    isCurrent ? 'text-gray-900' : isActive ? 'text-gray-600' : 'text-gray-400'
+                                  }`}>
+                                    {status}
+                                  </span>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+                        
+                        <div className="space-y-2 mb-4 mt-12">
+                          {order.items.map((item: any, idx: number) => (
+                            <div key={idx} className="flex justify-between items-center text-sm">
+                              <div className="flex items-center gap-2">
+                                <span className="text-xs font-bold text-gray-400">{item.quantity}x</span>
+                                <span className="font-medium text-gray-700">{item.name}</span>
+                              </div>
+                              <span className="text-gray-600 font-medium">₹{(item.price * item.quantity).toFixed(2)}</span>
+                            </div>
+                          ))}
+                        </div>
+                        
+                        <div className="flex justify-between items-center pt-3 border-t border-gray-50">
+                          <span className="text-xs font-bold text-gray-500">Total Paid</span>
+                          <span className="font-bold text-primary">₹{order.totalAmount.toFixed(2)}</span>
+                        </div>
                       </div>
-                      
-                      <div className="flex justify-between items-center pt-3 border-t border-gray-50">
-                        <span className="text-xs font-bold text-gray-500">Total Paid</span>
-                        <span className="font-bold text-primary">₹{order.totalAmount.toFixed(2)}</span>
-                      </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
             </div>
