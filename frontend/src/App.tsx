@@ -16,6 +16,7 @@ const Checkout = lazy(() => import('./Pages/Checkout'));
 const Orders = lazy(() => import('./Pages/Orders'));
 const ProductDetail = lazy(() => import('./Pages/ProductDetail'));
 const Profile = lazy(() => import('./Pages/Profile'));
+const NotFound = lazy(() => import('./Pages/NotFound'));
 
 const FallbackLoader = () => (
   <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -74,6 +75,7 @@ function App() {
               <Route path="/orders" element={<Orders />} />
               <Route path="/profile" element={<Profile />} />
               <Route path="/admin_pratik" element={<Admin />} />
+              <Route path="*" element={<NotFound />} />
             </Route>
 
             {/* Authentication Routes (No Navbar/Footer) */}

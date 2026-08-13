@@ -1,0 +1,82 @@
+[
+  {
+    "name": "Spicy Noodles",
+    "description": "Experience an explosion of flavor with our signature hot and spicy stir-fried noodles. Tossed in fiery wok sauce with farm-fresh crunchy vegetables, bell peppers, and scallions, this dish delivers the perfect balance of heat and umami in every single bite.",
+    "price": 149.00,
+    "category": "Momos",
+    "items": ["noodles", "vegetables", "soy sauce", "chili", "bell peppers", "scallions"],
+    "stock": 100
+  },
+  {
+    "name": "Belgian Waffle",
+    "description": "Indulge in our classic Belgian waffle, baked to a perfect golden crisp on the outside while remaining incredibly fluffy inside. Generously drizzled with rich, warm chocolate syrup and crowned with a colorful medley of fresh, seasonal berries and a dollop of whipped cream.",
+    "price": 180.00,
+    "category": "Coffee",
+    "items": ["waffle batter", "chocolate syrup", "berries", "whipped cream", "powdered sugar"],
+    "stock": 50
+  },
+  {
+    "name": "Steamed Momos",
+    "description": "Delight in these authentic, delicate steamed dumplings, expertly hand-folded and generously stuffed with a savory mix of fresh cabbage, carrots, and aromatic spices. Served steaming hot alongside our legendary, fiery red chili and garlic dipping chutney.",
+    "price": 120.00,
+    "category": "Momos",
+    "items": ["flour wrapper", "cabbage", "carrots", "spicy chutney", "garlic", "spices"],
+    "stock": 150
+  },
+  {
+    "name": "Subway Sandwich",
+    "description": "A wholesome and hearty submarine sandwich crafted on freshly baked artisanal bread. Loaded to the brim with crisp garden lettuce, ripe tomatoes, crunchy cucumbers, premium melted cheese, and finished with a mouth-watering blend of our house-made secret sauces.",
+    "price": 199.00,
+    "category": "Sub",
+    "items": ["artisanal bread", "lettuce", "tomatoes", "cucumbers", "cheese", "house sauces"],
+    "stock": 80
+  },
+  {
+    "name": "Crispy French Fries",
+    "description": "The ultimate comfort snack! Premium cut potatoes fried to a spectacular golden crispness, remaining wonderfully soft and fluffy on the inside. Perfectly seasoned with our signature salt blend and served piping hot with classic tangy tomato ketchup.",
+    "price": 99.00,
+    "category": "Burger",
+    "items": ["premium potatoes", "signature salt", "cooking oil", "ketchup"],
+    "stock": 200
+  },
+  {
+    "name": "Classic Cappuccino",
+    "description": "Awaken your senses with our masterfully brewed Classic Cappuccino. Featuring a bold, rich shot of premium espresso seamlessly blended with velvety steamed milk, and luxuriously topped with a deep, airy layer of milk foam and a light dusting of cocoa.",
+    "price": 150.00,
+    "category": "Coffee",
+    "items": ["premium espresso", "steamed milk", "thick milk foam", "cocoa powder"],
+    "stock": 120
+  },
+  {
+    "name": "Mexican Tacos",
+    "description": "Take your taste buds on a trip to Mexico with these vibrant, crunchy corn shell tacos. Generously packed with warmly spiced seasoned beans, crisp shredded lettuce, tangy fresh tomato salsa, and blanketed in a thick layer of sharp melted cheddar cheese.",
+    "price": 220.00,
+    "category": "Tacos",
+    "items": ["crunchy taco shells", "seasoned beans", "fresh salsa", "cheddar cheese", "shredded lettuce"],
+    "stock": 60
+  },
+  {
+    "name": "Chilled Cola",
+    "description": "The perfect, thirst-quenching companion to any savory meal. Enjoy this classic, ice-cold fizzy cola, poured over crystal clear ice cubes to deliver a crisp, deeply refreshing, and satisfyingly sweet beverage experience from the first sip to the last.",
+    "price": 60.00,
+    "category": "Cold drink",
+    "items": ["cola syrup", "carbonated water", "ice cubes"],
+    "stock": 300
+  },
+  {
+    "name": "Farmhouse Pizza",
+    "description": "A rustic masterpiece baked to perfection. This classic hand-tossed pizza features a crispy, airy crust slathered with rich herb-infused tomato sauce, buried under a mountain of gooey mozzarella cheese, and generously topped with crisp onions, crunchy capsicum, tomatoes, and earthy mushrooms.",
+    "price": 399.00,
+    "category": "Pizza",
+    "items": ["hand-tossed crust", "mozzarella cheese", "red onions", "green capsicum", "mushrooms", "herb tomato sauce"],
+    "stock": 40
+  },
+  {
+    "name": "Double Patty Burger",
+    "description": "Conquer your hunger with this towering masterpiece. Two incredibly juicy, perfectly grilled savory patties layered with melting premium cheese slices, crisp iceberg lettuce, and fresh tomato rounds, all lovingly hugged by a buttery, toasted sesame seed bun and smeared with our creamy house mayo.",
+    "price": 249.00,
+    "category": "Burger",
+    "items": ["sesame seed bun", "two savory patties", "premium cheese slices", "iceberg lettuce", "fresh tomatoes", "house mayo"],
+    "stock": 70
+  }
+]

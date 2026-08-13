@@ -124,7 +124,7 @@ const Hero = React.memo(() => {
         </motion.div>
 
       </div>
-    </section>
+    </main>
   );
 });
 

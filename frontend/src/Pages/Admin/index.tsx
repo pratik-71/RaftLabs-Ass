@@ -3,12 +3,13 @@ import { Package, Plus, ClipboardList } from 'lucide-react';
 import AddProduct from './Components/AddProduct';
 import ViewProducts from './Components/ViewProducts';
 import ManageOrders from './Components/ManageOrders';
+import BulkUpload from './Components/BulkUpload';
 
 export default function Admin() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const [activeTab, setActiveTab] = useState<'view' | 'add' | 'orders'>('orders');
+  const [activeTab, setActiveTab] = useState<'view' | 'add' | 'orders' | 'bulk'>('orders');
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
@@ -95,6 +96,15 @@ export default function Admin() {
             <Plus size={20} />
             Add products
           </button>
+          <button
+            onClick={() => setActiveTab('bulk')}
+            className={`flex items-center gap-2 px-6 py-3 font-semibold transition-colors border-b-2 whitespace-nowrap ${
+              activeTab === 'bulk' ? 'border-primary text-primary' : 'border-transparent text-textMuted hover:text-textMain'
+            }`}
+          >
+            <Package size={20} />
+            Bulk Upload
+          </button>
         </div>
 
         {/* Tab Content */}
@@ -102,6 +112,7 @@ export default function Admin() {
           {activeTab === 'orders' && <ManageOrders />}
           {activeTab === 'view' && <ViewProducts />}
           {activeTab === 'add' && <AddProduct />}
+          {activeTab === 'bulk' && <BulkUpload />}
         </div>
       </div>
     </div>
