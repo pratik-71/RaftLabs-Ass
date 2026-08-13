@@ -17,9 +17,13 @@ exports.createOrder = async (req, res) => {
     }
 
     const cleanOrder = validation.data;
+    
+    // Generate a unique tracking number
+    const trackingNumber = 'TRK-' + Math.random().toString(36).substring(2, 10).toUpperCase();
 
     const order = {
       id: orders.length ? Math.max(...orders.map(o => o.id)) + 1 : 1,
+      tracking_number: trackingNumber,
       ...cleanOrder,
       status: 'Order Received', // Initial status
       createdAt: new Date().toISOString()

@@ -20,15 +20,18 @@ const deliverySchema = z.object({
 
 // Order Item Validation Schema
 const orderItemSchema = z.object({
-  productId: z.number().or(z.string()),
+  product_id: z.number().or(z.string()),
   quantity: z.number().min(1, "Quantity must be at least 1"),
-  price: z.number().min(0, "Price cannot be negative")
+  price: z.number().min(0, "Price cannot be negative"),
+  name: z.string().optional(),
+  imageUrl: z.string().optional()
 });
 
 // Order Validation Schema
 const orderSchema = z.object({
   items: z.array(orderItemSchema).min(1, "Order must contain at least one item"),
   totalAmount: z.number().min(0.01, "Total amount must be greater than 0"),
+  deliveryFee: z.number().min(0, "Delivery fee cannot be negative"),
   deliveryDetails: deliverySchema
 });
 

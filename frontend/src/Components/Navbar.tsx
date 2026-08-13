@@ -15,11 +15,20 @@ export default function Navbar() {
   const [suggestions, setSuggestions] = useState<any[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const searchRef = useRef<HTMLDivElement>(null);
+  const [isScrolled, setIsScrolled] = useState(false);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
     navigate('/');
   };
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 20);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   useEffect(() => {
     const fetchSuggestions = async () => {
@@ -61,17 +70,24 @@ export default function Navbar() {
     }
   };
 
+  const textColorClass = isScrolled ? "text-gray-200 hover:text-white" : "text-textMain hover:text-primary";
+  const iconColorClass = isScrolled ? "text-gray-200 hover:text-white" : "text-textMain hover:text-primary";
+
   return (
-    <nav className="flex justify-between items-center px-[5%] py-4 border-b border-border sticky top-0 bg-background z-50">
+    <nav className={`flex justify-between items-center px-[5%] transition-all duration-300 border-b sticky top-0 z-50 ${
+      isScrolled 
+        ? 'py-2.5 bg-gray-900 border-gray-800 shadow-lg' 
+        : 'py-3.5 bg-background border-border'
+    }`}>
       <div className="flex items-center gap-8">
-        <Link to="/" className="font-heading text-2xl font-extrabold text-primary">
+        <Link to="/" className={`font-heading text-2xl font-extrabold ${isScrolled ? 'text-white' : 'text-primary'} transition-colors`}>
           Foodie
         </Link>
         <div className="hidden md:flex items-center gap-6">
-          <Link to="/" className="text-textMain font-medium hover:text-primary transition-colors">
+          <Link to="/" className={`font-medium transition-colors ${textColorClass}`}>
             Home
           </Link>
-          <Link to="/products" className="text-textMain font-medium hover:text-primary transition-colors">
+          <Link to="/products" className={`font-medium transition-colors ${textColorClass}`}>
             Products
           </Link>
         </div>
@@ -91,9 +107,13 @@ export default function Navbar() {
                 setShowSuggestions(true);
               }}
               onFocus={() => setShowSuggestions(true)}
-              className="pl-10 pr-4 py-2 bg-surface border border-border rounded-full text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary w-48 lg:w-64 transition-all"
+              className={`pl-10 pr-4 py-1.5 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-primary w-48 lg:w-64 transition-all ${
+                isScrolled 
+                  ? 'bg-gray-800 border-gray-700 text-white placeholder-gray-400 focus:bg-gray-700' 
+                  : 'bg-surface border-border text-textMain'
+              }`}
             />
-            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-textMuted" />
+            <Search size={16} className={`absolute left-3 top-1/2 -translate-y-1/2 ${isScrolled ? 'text-gray-400' : 'text-textMuted'}`} />
           </form>
 
           {showSuggestions && suggestions.length > 0 && (
@@ -119,15 +139,17 @@ export default function Navbar() {
         </div>
 
         {/* Mobile Search Icon */}
-        <button className="md:hidden text-textMain hover:text-primary transition-colors p-2 rounded-full hover:bg-surface">
+        <button className={`md:hidden p-2 rounded-full transition-colors ${iconColorClass} ${isScrolled ? 'hover:bg-gray-800' : 'hover:bg-surface'}`}>
           <Search size={20} />
         </button>
         
         {/* Cart Icon - Always visible */}
-        <Link to="/cart" className="text-textMain hover:text-primary transition-colors p-2 rounded-full hover:bg-surface relative">
+        <Link to="/cart" className={`p-2 rounded-full transition-colors relative ${iconColorClass} ${isScrolled ? 'hover:bg-gray-800' : 'hover:bg-surface'}`}>
           <ShoppingCart size={20} />
           {cartItemsCount > 0 && (
-            <span className="absolute top-0 right-0 bg-primary text-white text-[10px] font-bold w-4 h-4 flex items-center justify-center rounded-full">
+            <span className={`absolute top-0 right-0 text-[10px] font-bold w-4 h-4 flex items-center justify-center rounded-full ${
+              isScrolled ? 'bg-white text-gray-900' : 'bg-primary text-white'
+            }`}>
               {cartItemsCount}
             </span>
           )}
@@ -136,7 +158,7 @@ export default function Navbar() {
         {user ? (
           <>
             <div className="group relative">
-              <button className="flex items-center gap-2 text-textMain hover:text-primary transition-colors p-2 rounded-full hover:bg-surface">
+              <button className={`flex items-center gap-2 p-2 rounded-full transition-colors ${iconColorClass} ${isScrolled ? 'hover:bg-gray-800' : 'hover:bg-surface'}`}>
                 <UserIcon size={20} />
                 <span className="text-sm font-medium hidden sm:block">
                   {user.user_metadata?.username || 'User'}
@@ -162,10 +184,12 @@ export default function Navbar() {
           </>
         ) : (
           <div className="flex items-center ml-2">
-            <Link to="/login" className="text-textMain font-semibold mr-6 hover:text-primary transition-colors text-sm sm:text-base">
+            <Link to="/login" className={`font-semibold mr-6 transition-colors text-sm sm:text-base ${textColorClass}`}>
               Log in
             </Link>
-            <Link to="/signup" className="bg-primary text-white px-4 sm:px-6 py-2 sm:py-2.5 rounded-full font-semibold transition-colors hover:bg-primaryHover text-sm sm:text-base">
+            <Link to="/signup" className={`px-4 sm:px-6 py-1.5 sm:py-2 rounded-full font-semibold transition-colors text-sm sm:text-base ${
+              isScrolled ? 'bg-white text-gray-900 hover:bg-gray-200' : 'bg-primary text-white hover:bg-primaryHover'
+            }`}>
               Sign up
             </Link>
           </div>

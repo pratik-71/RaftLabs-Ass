@@ -8,6 +8,7 @@ import Admin from './Pages/Admin';
 import Cart from './Pages/Cart';
 import Orders from './Pages/Orders';
 import ProductDetail from './Pages/ProductDetail';
+import Profile from './Pages/Profile';
 import { supabase } from './Config/supabase';
 import { useAuthStore } from './Store/authStore';
 import { Toaster } from 'react-hot-toast';
@@ -60,6 +61,7 @@ function App() {
             <Route path="/product/:slug" element={<ProductDetail />} />
             <Route path="/cart" element={<Cart />} />
             <Route path="/orders" element={<Orders />} />
+            <Route path="/profile" element={<Profile />} />
             <Route path="/admin_pratik" element={<Admin />} />
           </Route>
 
