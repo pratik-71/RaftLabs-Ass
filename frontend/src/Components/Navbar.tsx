@@ -77,8 +77,8 @@ export default function Navbar() {
     }
   };
 
-  const textColorClass = isScrolled ? "text-gray-900 hover:text-primary" : (isHome ? "text-gray-900 hover:text-primary" : "text-textMain hover:text-primary");
-  const iconColorClass = isScrolled ? "text-gray-900 hover:text-primary" : (isHome ? "text-gray-900 hover:text-primary" : "text-textMain hover:text-primary");
+  const textColorClass = isScrolled ? "text-gray-900 hover:text-primary" : (isHome ? "text-white hover:text-primary drop-shadow-md" : "text-textMain hover:text-primary");
+  const iconColorClass = isScrolled ? "text-gray-900 hover:text-primary" : (isHome ? "text-white hover:text-primary drop-shadow-md" : "text-textMain hover:text-primary");
 
   return (
     <nav className={`w-full flex justify-between items-center px-[5%] transition-all duration-300 z-50 fixed top-0 left-0 ${
@@ -135,7 +135,7 @@ export default function Navbar() {
               {suggestions.map(item => (
                 <Link 
                   key={item.id} 
-                  to={`/products?q=${encodeURIComponent(item.name)}`}
+                  to={`/product/${item.slug}`}
                   onClick={() => setShowSuggestions(false)}
                   className="flex items-center gap-3 p-3 hover:bg-surface transition-colors border-b border-border last:border-0"
                 >

@@ -21,7 +21,7 @@ const Hero = React.memo(() => {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="font-heading text-6xl md:text-7xl lg:text-[80px] font-black text-gray-900 leading-[1.1] mb-6 tracking-tight"
+          className="font-heading text-5xl md:text-6xl lg:text-7xl font-black text-gray-900 leading-[1.1] mb-6 tracking-tight"
         >
           Fastest <br/>
           <span className="text-primary">Delivery &</span> <br/>
@@ -50,7 +50,14 @@ const Hero = React.memo(() => {
             Order Now <ArrowRight size={20} />
           </button>
           <button 
-            onClick={() => navigate('/products')}
+            onClick={() => {
+              const menuSection = document.getElementById('menu-section');
+              if (menuSection) {
+                menuSection.scrollIntoView({ behavior: 'smooth' });
+              } else {
+                navigate('/products');
+              }
+            }}
             className="bg-white hover:bg-gray-50 text-gray-900 px-8 py-4 rounded-full font-bold text-base shadow-md transition-all flex items-center gap-2 border border-gray-100 hover:-translate-y-0.5"
           >
             <LayoutGrid size={20} className="text-gray-600" /> Explore Menu
@@ -91,36 +98,6 @@ const Hero = React.memo(() => {
               <div className="text-[10px] text-gray-500 font-medium">Best food, every time</div>
             </div>
           </div>
-        </motion.div>
-
-        {/* Bottom Banner */}
-        <motion.div
-           initial={{ opacity: 0, y: 30 }}
-           animate={{ opacity: 1, y: 0 }}
-           transition={{ duration: 0.5, delay: 0.4 }}
-           className="bg-white/90 backdrop-blur-sm p-3 pr-4 rounded-full shadow-lg inline-flex items-center gap-4 md:gap-6 border border-white/50 cursor-pointer hover:bg-white transition-colors"
-           onClick={() => navigate('/products')}
-        >
-          <div className="pl-2">
-            <div className="text-sm font-bold text-primary">Amazing Deals & Discounts</div>
-            <div className="text-[10px] text-gray-500 font-medium">Up to 50% off on your favorite food</div>
-          </div>
-          
-          <div className="flex gap-2">
-             <div className="w-10 h-10 rounded-xl bg-gray-100 overflow-hidden border-2 border-white shadow-sm">
-                <img src="/buger.png" alt="burger" className="w-full h-full object-cover mix-blend-multiply" onError={(e) => e.currentTarget.style.display = 'none'} />
-             </div>
-             <div className="w-10 h-10 rounded-xl bg-gray-100 overflow-hidden border-2 border-white shadow-sm">
-                <img src="/pizza.png" alt="pizza" className="w-full h-full object-cover mix-blend-multiply" onError={(e) => e.currentTarget.style.display = 'none'} />
-             </div>
-             <div className="w-10 h-10 rounded-xl bg-gray-100 overflow-hidden border-2 border-white shadow-sm">
-                <img src="/coffee.png" alt="coffee" className="w-full h-full object-cover mix-blend-multiply" onError={(e) => e.currentTarget.style.display = 'none'} />
-             </div>
-          </div>
-
-          <button className="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center hover:bg-primaryHover transition-colors ml-2 shadow-sm shrink-0">
-            <ChevronRight size={16} />
-          </button>
         </motion.div>
 
       </div>

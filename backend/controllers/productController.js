@@ -21,7 +21,15 @@ exports.getProducts = async (req, res) => {
     const { data, error } = await query;
     if (error) throw error;
     
-    res.status(200).json({ success: true, data });
+    // Map image_url back to imageUrl for the frontend
+    const mappedData = data.map(item => {
+      const mappedItem = { ...item };
+      mappedItem.imageUrl = item.image_url;
+      delete mappedItem.image_url;
+      return mappedItem;
+    });
+    
+    res.status(200).json({ success: true, data: mappedData });
   } catch (error) {
     console.error('Error fetching products:', error);
     res.status(500).json({ success: false, error: 'Server Error' });
@@ -40,7 +48,11 @@ exports.getProductBySlug = async (req, res) => {
       return res.status(404).json({ success: false, error: 'Product not found' });
     }
     
-    res.status(200).json({ success: true, data });
+    const mappedData = { ...data };
+    mappedData.imageUrl = data.image_url;
+    delete mappedData.image_url;
+    
+    res.status(200).json({ success: true, data: mappedData });
   } catch (error) {
     console.error('Error fetching product by slug:', error);
     res.status(500).json({ success: false, error: 'Server Error' });
@@ -65,6 +77,11 @@ exports.addProduct = async (req, res) => {
     // Auto-generate slug if not provided
     if (!cleanProduct.slug) {
       cleanProduct.slug = cleanProduct.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+    }
+
+    if (cleanProduct.imageUrl !== undefined) {
+      cleanProduct.image_url = cleanProduct.imageUrl;
+      delete cleanProduct.imageUrl;
     }
     
     const { data, error } = await supabase.from('products').insert([cleanProduct]).select().single();
@@ -114,6 +131,11 @@ exports.updateProduct = async (req, res) => {
     const cleanProduct = validation.data;
     if (updateData.name && !updateData.slug) {
       cleanProduct.slug = cleanProduct.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+    }
+
+    if (cleanProduct.imageUrl !== undefined) {
+      cleanProduct.image_url = cleanProduct.imageUrl;
+      delete cleanProduct.imageUrl;
     }
 
     const { data, error } = await supabase.from('products').update(cleanProduct).eq('id', id).select().single();

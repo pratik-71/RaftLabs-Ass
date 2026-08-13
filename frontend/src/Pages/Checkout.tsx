@@ -1,6 +1,7 @@
 import { useState, useMemo, useCallback, useEffect } from 'react';
 import { useCartStore } from '../Store/cartStore';
 import { useAddressStore } from '../Store/addressStore';
+import { useAuthStore } from '../Store/authStore';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
 import { deliverySchema, validateData } from '../Utils/validators';
@@ -10,6 +11,7 @@ import { MapPin, Phone, User, CreditCard, Lock, Loader2, CheckCircle2 } from 'lu
 export default function Checkout() {
   const { items: cartItems, clearCart, buyNowItem, setBuyNowItem } = useCartStore();
   const { addresses } = useAddressStore();
+  const user = useAuthStore((state) => state.user);
   const navigate = useNavigate();
   
   const items = buyNowItem ? [buyNowItem] : cartItems;
@@ -33,6 +35,14 @@ export default function Checkout() {
     }
   }, [items, navigate]);
 
+  // Require login
+  useEffect(() => {
+    if (!user) {
+      toast.error("Please log in to checkout");
+      navigate('/login');
+    }
+  }, [user, navigate]);
+
   const handleCheckout = useCallback(async () => {
     if (items.length === 0 || isSubmitting) return;
 
@@ -54,7 +64,8 @@ export default function Checkout() {
           items,
           totalAmount,
           deliveryFee,
-          deliveryDetails
+          deliveryDetails,
+          userId: user?.id
         })
       });
 

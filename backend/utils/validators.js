@@ -32,7 +32,8 @@ const orderSchema = z.object({
   items: z.array(orderItemSchema).min(1, "Order must contain at least one item"),
   totalAmount: z.number().min(0.01, "Total amount must be greater than 0"),
   deliveryFee: z.number().min(0, "Delivery fee cannot be negative"),
-  deliveryDetails: deliverySchema
+  deliveryDetails: deliverySchema,
+  userId: z.string().uuid("Invalid user ID")
 });
 
 // Helper function to validate data like a python serializer

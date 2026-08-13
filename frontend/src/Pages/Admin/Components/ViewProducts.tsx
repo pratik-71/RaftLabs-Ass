@@ -1,5 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { Package, Edit2, Trash2, X, AlertCircle } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Package, Edit2, Trash2, X, AlertCircle, Image as ImageIcon } from 'lucide-react';
+import imageCompression from 'browser-image-compression';
+import { supabase } from '../../../Config/supabase';
 import { CATEGORIES } from './AddProduct';
 import { BACKEND_URL } from '../../../Config/api';
 
@@ -10,6 +12,13 @@ export default function ViewProducts() {
   // Modals state
   const [editingProduct, setEditingProduct] = useState<any | null>(null);
   const [productToDelete, setProductToDelete] = useState<any | null>(null);
+  
+  // Image Upload state for editing
+  const [newImageFile, setNewImageFile] = useState<File | null>(null);
+  const [newImagePreview, setNewImagePreview] = useState<string | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [isCompressing, setIsCompressing] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const fetchProducts = async () => {
     setIsLoadingProducts(true);
@@ -46,24 +55,60 @@ export default function ViewProducts() {
     }
   };
 
+  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      setIsCompressing(true);
+      try {
+        const compressed = await imageCompression(file, { maxSizeMB: 0.5, maxWidthOrHeight: 1024, useWebWorker: true });
+        setNewImageFile(compressed);
+        setNewImagePreview(URL.createObjectURL(compressed));
+      } catch (err) {
+        console.error("Compression failed", err);
+      } finally {
+        setIsCompressing(false);
+      }
+    }
+  };
+
   const handleEditSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editingProduct) return;
+    setIsUploading(true);
 
     try {
+      let imageUrl = editingProduct.imageUrl;
+
+      if (newImageFile) {
+        const fileExt = newImageFile.name.split('.').pop();
+        const fileName = `${Math.random()}.${fileExt}`;
+        const { error: uploadError } = await supabase.storage.from('product-images').upload(fileName, newImageFile);
+        
+        if (!uploadError) {
+          const { data: publicUrlData } = supabase.storage.from('product-images').getPublicUrl(fileName);
+          imageUrl = publicUrlData.publicUrl;
+        }
+      }
+
+      const updatedProduct = { ...editingProduct, imageUrl };
+
       const res = await fetch(`${BACKEND_URL}/api/products/${editingProduct.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(editingProduct)
+        body: JSON.stringify(updatedProduct)
       });
       
       const data = await res.json();
       if (res.ok && data.success) {
         setProducts(products.map(p => p.id === editingProduct.id ? data.data : p));
         setEditingProduct(null);
+        setNewImageFile(null);
+        setNewImagePreview(null);
       }
     } catch (err) {
       console.error("Failed to update", err);
+    } finally {
+      setIsUploading(false);
     }
   };
 
@@ -108,7 +153,11 @@ export default function ViewProducts() {
                   <td className="p-4 text-sm text-textMuted">{p.stock || 0}</td>
                   <td className="p-4 text-right">
                     <button 
-                      onClick={() => setEditingProduct({...p, items: p.items ? p.items.join(', ') : ''})}
+                      onClick={() => {
+                        setEditingProduct({...p, items: p.items ? p.items.join(', ') : ''});
+                        setNewImageFile(null);
+                        setNewImagePreview(null);
+                      }}
                       className="p-2 text-textMuted hover:text-blue-500 transition-colors inline-block"
                       title="Edit Product"
                     >
@@ -165,7 +214,11 @@ export default function ViewProducts() {
             <div className="flex justify-between items-center mb-8 pb-4 border-b border-border">
               <h2 className="text-3xl font-bold font-heading text-textMain">Edit Product</h2>
               <button 
-                onClick={() => setEditingProduct(null)}
+                onClick={() => {
+                  setEditingProduct(null);
+                  setNewImageFile(null);
+                  setNewImagePreview(null);
+                }}
                 className="p-2 bg-surface hover:bg-gray-200 rounded-full transition-colors"
               >
                 <X size={24} />
@@ -243,22 +296,57 @@ export default function ViewProducts() {
                   required
                 />
               </div>
-              
-              {/* Note: In a full app, you'd add image upload here for editing as well */}
-              
+              <div>
+                <label className="block text-sm font-semibold text-textMain mb-2">Product Image</label>
+                <div className="mt-2 flex items-center gap-6">
+                  <div className="h-24 w-24 shrink-0 rounded-xl border border-border bg-surface overflow-hidden flex items-center justify-center relative">
+                    {(newImagePreview || editingProduct.imageUrl) ? (
+                      <img src={newImagePreview || editingProduct.imageUrl} alt="Preview" className={`h-full w-full object-cover ${isCompressing ? 'opacity-50' : ''}`} />
+                    ) : (
+                      <ImageIcon className="text-gray-300" size={32} />
+                    )}
+                    {isCompressing && (
+                      <div className="absolute inset-0 flex items-center justify-center bg-white/50">
+                        <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
+                      </div>
+                    )}
+                  </div>
+                  <div>
+                    <label className="cursor-pointer bg-white border border-border px-4 py-2 rounded-lg font-semibold text-sm hover:bg-gray-50 transition-colors inline-block">
+                      Upload New Image
+                      <input type="file" accept="image/*" className="hidden" onChange={handleImageChange} ref={fileInputRef} disabled={isUploading} />
+                    </label>
+                    <p className="text-xs text-textMuted mt-2">Leave blank to keep existing image</p>
+                  </div>
+                </div>
+              </div>
+
               <div className="pt-8 flex justify-end gap-4 border-t border-border mt-8">
                 <button 
                   type="button" 
-                  onClick={() => setEditingProduct(null)}
+                  onClick={() => {
+                    setEditingProduct(null);
+                    setNewImageFile(null);
+                    setNewImagePreview(null);
+                  }}
                   className="px-6 py-3 rounded-xl font-bold text-textMain hover:bg-surface transition-colors border border-border"
+                  disabled={isUploading}
                 >
                   Cancel
                 </button>
                 <button 
                   type="submit" 
-                  className="bg-primary hover:bg-primaryHover text-white px-10 py-3 rounded-xl font-bold transition-colors shadow-md flex items-center gap-2"
+                  disabled={isUploading || isCompressing}
+                  className="bg-primary hover:bg-primaryHover text-white px-10 py-3 rounded-xl font-bold transition-colors shadow-md flex items-center gap-2 disabled:opacity-50"
                 >
-                  Save Changes
+                  {isUploading ? (
+                    <>
+                      <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                      Saving...
+                    </>
+                  ) : (
+                    'Save Changes'
+                  )}
                 </button>
               </div>
             </form>

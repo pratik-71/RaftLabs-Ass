@@ -94,88 +94,81 @@ export default function ManageOrders() {
   }
 
   return (
-    <div className="overflow-x-auto">
-      <table className="w-full text-left border-collapse">
-        <thead>
-          <tr className="border-b border-border text-sm font-semibold text-textMuted">
-            <th className="pb-3 px-4 font-heading">Order ID</th>
-            <th className="pb-3 px-4 font-heading">Customer</th>
-            <th className="pb-3 px-4 font-heading">Items</th>
-            <th className="pb-3 px-4 font-heading">Total</th>
-            <th className="pb-3 px-4 font-heading">Date</th>
-            <th className="pb-3 px-4 font-heading">Status</th>
-          </tr>
-        </thead>
-        <tbody className="text-sm">
-          {orders.map(order => (
-            <tr key={order.id} className="border-b border-border last:border-0 hover:bg-gray-50 transition-colors">
-              
-              {/* Order ID & Tracking */}
-              <td className="py-4 px-4 align-top">
-                <div className="font-bold text-textMain mb-1">#{order.id}</div>
-                {order.tracking_number && (
-                  <div className="text-[10px] font-mono bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded inline-block">
-                    {order.tracking_number}
-                  </div>
-                )}
-              </td>
-              
-              {/* Customer */}
-              <td className="py-4 px-4 align-top max-w-[200px]">
-                <p className="font-bold text-textMain line-clamp-1">{order.deliveryDetails?.name || 'Unknown'}</p>
-                <p className="text-xs text-textMuted line-clamp-1 mt-0.5">{order.deliveryDetails?.address || 'No address'}</p>
-                <p className="text-xs font-semibold text-textMuted mt-0.5">{order.deliveryDetails?.phone || '-'}</p>
-              </td>
+    <div className="space-y-4">
+      {orders.map(order => (
+        <div key={order.id} className="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow flex flex-col lg:flex-row gap-6 lg:items-center relative">
+          
+          {/* Order Identity (ID & Date) */}
+          <div className="w-full lg:w-48 shrink-0 border-b lg:border-b-0 lg:border-r border-gray-100 pb-4 lg:pb-0 lg:pr-6">
+            <div className="flex items-center gap-3 mb-1">
+              <span className="font-heading font-extrabold text-xl text-gray-900">#{order.id}</span>
+              {order.tracking_number && (
+                <span className="text-[10px] font-mono bg-gray-100 text-gray-500 px-2 py-1 rounded-md font-bold">
+                  {order.tracking_number}
+                </span>
+              )}
+            </div>
+            <div className="text-xs font-medium text-gray-400">
+              {new Date(order.createdAt).toLocaleDateString()} at {new Date(order.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+            </div>
+          </div>
 
-              {/* Items */}
-              <td className="py-4 px-4 align-top max-w-[200px]">
-                <div className="space-y-1">
-                  {order.items.slice(0, 2).map((item, idx) => (
-                    <div key={idx} className="flex text-xs items-center gap-1.5">
-                      <span className="font-bold text-gray-400">{item.quantity}x</span>
-                      <span className="font-medium text-gray-700 line-clamp-1">{item.name}</span>
-                    </div>
-                  ))}
-                  {order.items.length > 2 && (
-                    <div className="text-xs font-semibold text-primary">+{order.items.length - 2} more</div>
-                  )}
+          {/* Customer Details */}
+          <div className="flex-1 min-w-0">
+            <h4 className="text-[10px] font-bold tracking-wider text-gray-400 uppercase mb-2">Customer</h4>
+            <div className="flex flex-col gap-0.5">
+              <span className="font-bold text-gray-800 text-sm">{order.deliveryDetails?.name || 'Unknown'}</span>
+              <span className="text-xs font-medium text-gray-500 line-clamp-1">{order.deliveryDetails?.address || 'No address provided'}</span>
+              <span className="text-xs font-bold text-primary">{order.deliveryDetails?.phone || '-'}</span>
+            </div>
+          </div>
+
+          {/* Order Items */}
+          <div className="flex-1 min-w-0">
+            <h4 className="text-[10px] font-bold tracking-wider text-gray-400 uppercase mb-2">Items</h4>
+            <div className="space-y-1.5">
+              {order.items.slice(0, 2).map((item, idx) => (
+                <div key={idx} className="flex items-center gap-2 text-sm">
+                  <span className="w-5 h-5 flex items-center justify-center bg-gray-50 text-gray-500 font-bold text-xs rounded">
+                    {item.quantity}
+                  </span>
+                  <span className="font-semibold text-gray-700 truncate">{item.name}</span>
                 </div>
-              </td>
-
-              {/* Total */}
-              <td className="py-4 px-4 align-top font-bold text-primary">
-                ₹{order.totalAmount.toFixed(2)}
-              </td>
-
-              {/* Date */}
-              <td className="py-4 px-4 align-top text-xs font-medium text-gray-500">
-                {new Date(order.createdAt).toLocaleDateString()}<br/>
-                {new Date(order.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-              </td>
-
-              {/* Status Select */}
-              <td className="py-4 px-4 align-top">
-                <div className="relative inline-block w-full min-w-[140px]">
-                  <select
-                    disabled={updatingId === order.id}
-                    value={order.status}
-                    onChange={(e) => handleStatusChange(order.id, e.target.value)}
-                    className={`appearance-none w-full border-none outline-none font-bold text-xs px-3 py-1.5 pr-8 rounded-full cursor-pointer disabled:opacity-50 transition-colors ${getStatusColor(order.status)}`}
-                  >
-                    {STATUS_OPTIONS.map(opt => (
-                      <option key={opt} value={opt} className="bg-white text-gray-900 font-medium">
-                        {opt}
-                      </option>
-                    ))}
-                  </select>
-                  <ChevronDown size={14} className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none opacity-50" />
+              ))}
+              {order.items.length > 2 && (
+                <div className="text-xs font-bold text-primary pl-7">
+                  +{order.items.length - 2} more items
                 </div>
-              </td>
+              )}
+            </div>
+          </div>
 
-            </tr>
-          ))}
-        </tbody>
-      </table>
+          {/* Total & Action */}
+          <div className="w-full lg:w-48 shrink-0 flex flex-row lg:flex-col items-center lg:items-end justify-between lg:justify-center gap-4 pt-4 lg:pt-0 border-t lg:border-t-0 border-gray-100">
+            <div className="flex flex-col lg:items-end">
+              <span className="text-[10px] font-bold tracking-wider text-gray-400 uppercase mb-1">Total Paid</span>
+              <span className="font-black text-2xl text-primary">₹{order.totalAmount.toFixed(2)}</span>
+            </div>
+            
+            <div className="relative w-40">
+              <select
+                disabled={updatingId === order.id}
+                value={order.status}
+                onChange={(e) => handleStatusChange(order.id, e.target.value)}
+                className={`appearance-none w-full border-none outline-none font-bold text-xs px-4 py-2.5 pr-8 rounded-xl cursor-pointer disabled:opacity-50 transition-colors shadow-sm focus:ring-2 focus:ring-primary/20 ${getStatusColor(order.status)}`}
+              >
+                {STATUS_OPTIONS.map(opt => (
+                  <option key={opt} value={opt} className="bg-white text-gray-900 font-medium">
+                    {opt}
+                  </option>
+                ))}
+              </select>
+              <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none opacity-50" />
+            </div>
+          </div>
+
+        </div>
+      ))}
     </div>
   );
 }

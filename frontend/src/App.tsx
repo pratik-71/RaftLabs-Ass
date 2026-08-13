@@ -1,5 +1,5 @@
 import { useEffect, Suspense, lazy } from 'react';
-import { BrowserRouter as Router, Routes, Route, Outlet } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Outlet, useLocation } from 'react-router-dom';
 import { supabase } from './Config/supabase';
 import { useAuthStore } from './Store/authStore';
 import { Toaster } from 'react-hot-toast';
@@ -23,6 +23,16 @@ const FallbackLoader = () => (
     <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
   </div>
 );
+
+function ScrollToTop() {
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+
+  return null;
+}
 
 const MainLayout = () => {
   return (
@@ -63,6 +73,7 @@ function App() {
         }} 
       />
       <Router>
+        <ScrollToTop />
         <Suspense fallback={<FallbackLoader />}>
           <Routes>
             {/* Routes with Navbar and Footer */}

@@ -52,12 +52,11 @@ export default function Admin() {
   }
 
   return (
-    <div className="min-h-screen bg-surface p-6 md:p-12">
+    <div className="min-h-screen bg-surface px-6 pb-6 md:px-12 md:pb-12 pt-2 md:pt-4">
       <div className="w-full mx-auto">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
           <div>
             <h1 className="text-3xl font-bold font-heading text-textMain">Admin Dashboard</h1>
-            <p className="text-textMuted mt-1">Manage your products, inventory, and incoming orders</p>
           </div>
           <button 
             onClick={() => setIsAuthenticated(false)}

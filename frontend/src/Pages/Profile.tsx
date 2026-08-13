@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 
 import { useAuthStore } from '../Store/authStore';
 import { useAddressStore } from '../Store/addressStore';
@@ -271,15 +272,42 @@ export default function Profile() {
                         </div>
                         
                         <div className="space-y-2 mb-4 mt-12">
-                          {order.items.map((item: any, idx: number) => (
-                            <div key={idx} className="flex justify-between items-center text-sm">
-                              <div className="flex items-center gap-2">
-                                <span className="text-xs font-bold text-gray-400">{item.quantity}x</span>
-                                <span className="font-medium text-gray-700">{item.name}</span>
+                          {order.items.map((item: any, idx: number) => {
+                            const itemContent = (
+                              <>
+                                <div className="flex items-center gap-3">
+                                  {item.imageUrl ? (
+                                    <div className="w-10 h-10 shrink-0 bg-white border border-gray-100 rounded-lg p-1 overflow-hidden flex items-center justify-center">
+                                      <img src={item.imageUrl} alt={item.name} className="w-full h-full object-contain mix-blend-multiply" />
+                                    </div>
+                                  ) : (
+                                    <div className="w-10 h-10 shrink-0 bg-gray-50 border border-gray-100 rounded-lg flex flex-col items-center justify-center text-gray-400">
+                                      <span className="text-[8px] font-bold">Foodie</span>
+                                    </div>
+                                  )}
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-xs font-bold text-gray-400">{item.quantity}x</span>
+                                    <span className="font-medium text-gray-700 line-clamp-1">{item.name}</span>
+                                  </div>
+                                </div>
+                                <span className="text-gray-600 font-medium whitespace-nowrap ml-2">₹{(item.price * item.quantity).toFixed(2)}</span>
+                              </>
+                            );
+
+                            return item.slug ? (
+                              <Link 
+                                key={idx} 
+                                to={`/product/${item.slug}`}
+                                className="flex justify-between items-center text-sm hover:bg-gray-50 p-2 -mx-2 rounded-lg transition-colors cursor-pointer group"
+                              >
+                                {itemContent}
+                              </Link>
+                            ) : (
+                              <div key={idx} className="flex justify-between items-center text-sm p-2 -mx-2">
+                                {itemContent}
                               </div>
-                              <span className="text-gray-600 font-medium">₹{(item.price * item.quantity).toFixed(2)}</span>
-                            </div>
-                          ))}
+                            );
+                          })}
                         </div>
                         
                         <div className="flex justify-between items-center pt-3 border-t border-gray-50">
