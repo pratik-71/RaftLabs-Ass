@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Outlet } from 'react-router-dom';
 import Home from './Pages/Home';
 import Login from './Pages/Login';
 import Signup from './Pages/Signup';
@@ -11,6 +11,15 @@ import ProductDetail from './Pages/ProductDetail';
 import { supabase } from './Config/supabase';
 import { useAuthStore } from './Store/authStore';
 import { Toaster } from 'react-hot-toast';
+import Layout from './Components/Layout';
+
+const MainLayout = () => {
+  return (
+    <Layout>
+      <Outlet />
+    </Layout>
+  );
+};
 
 function App() {
   const setUser = useAuthStore((state) => state.setUser);
@@ -44,14 +53,19 @@ function App() {
       />
       <Router>
         <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/products" element={<Products />} />
-          <Route path="/product/:slug" element={<ProductDetail />} />
+          {/* Routes with Navbar and Footer */}
+          <Route element={<MainLayout />}>
+            <Route path="/" element={<Home />} />
+            <Route path="/products" element={<Products />} />
+            <Route path="/product/:slug" element={<ProductDetail />} />
+            <Route path="/cart" element={<Cart />} />
+            <Route path="/orders" element={<Orders />} />
+            <Route path="/admin_pratik" element={<Admin />} />
+          </Route>
+
+          {/* Authentication Routes (No Navbar/Footer) */}
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
-          <Route path="/cart" element={<Cart />} />
-          <Route path="/orders" element={<Orders />} />
-          <Route path="/admin_pratik" element={<Admin />} />
         </Routes>
       </Router>
     </>

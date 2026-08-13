@@ -6,7 +6,7 @@ import { toast } from 'react-hot-toast';
 import { productSchema, validateData } from '../../../Utils/validators';
 import { BACKEND_URL } from '../../../Config/api';
 
-export const CATEGORIES = ['Pizza', 'Burger', 'Main Course', 'Sides', 'Beverages', 'Desserts', 'Salads', 'Appetizers'];
+export const CATEGORIES = ['Burger', 'Pizza', 'Coffee', 'Tacos', 'Burritos', 'Sandwich', 'Sub', 'Cold drink', 'Wraps', 'Momos'];
 
 export default function AddProduct() {
   const [productName, setProductName] = useState('');
@@ -14,6 +14,7 @@ export default function AddProduct() {
   const [price, setPrice] = useState('');
   const [category, setCategory] = useState(CATEGORIES[0]);
   const [items, setItems] = useState(''); // comma separated
+  const [stock, setStock] = useState('0');
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [isCompressing, setIsCompressing] = useState(false);
@@ -62,7 +63,8 @@ export default function AddProduct() {
       description,
       price: parseFloat(price) || 0,
       category,
-      items
+      items,
+      stock: parseInt(stock, 10) || 0
     });
 
     if (validation.success === false) {
@@ -107,6 +109,7 @@ export default function AddProduct() {
           price: parseFloat(price),
           category,
           items: items.split(',').map(i => i.trim()),
+          stock: parseInt(stock, 10) || 0,
           imageUrl
         })
       });
@@ -125,6 +128,7 @@ export default function AddProduct() {
       setPrice('');
       setCategory(CATEGORIES[0]);
       setItems('');
+      setStock('0');
       handleRemoveImage();
 
     } catch (err: any) {
@@ -199,7 +203,17 @@ export default function AddProduct() {
             />
           </div>
         </div>
-        
+        <div>
+          <label className="block text-sm font-semibold text-textMain mb-2">Stock Quantity</label>
+          <input 
+            type="number" 
+            className="w-full px-4 py-2.5 rounded-xl border border-border focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors bg-surface" 
+            placeholder="e.g. 50" 
+            value={stock}
+            onChange={(e) => setStock(e.target.value)}
+          />
+        </div>
+
         <div>
           <label className="block text-sm font-semibold text-textMain mb-2">Product Image (Compressed Automatically)</label>
           

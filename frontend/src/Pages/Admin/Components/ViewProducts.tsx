@@ -86,6 +86,7 @@ export default function ViewProducts() {
                 <th className="p-4 font-semibold">Name</th>
                 <th className="p-4 font-semibold">Category</th>
                 <th className="p-4 font-semibold">Price</th>
+                <th className="p-4 font-semibold">Stock</th>
                 <th className="p-4 font-semibold text-right">Actions</th>
               </tr>
             </thead>
@@ -104,6 +105,7 @@ export default function ViewProducts() {
                     <span className="bg-surface border border-border px-2 py-1 rounded-full">{p.category}</span>
                   </td>
                   <td className="p-4 font-bold text-primary">₹{Number(p.price).toFixed(2)}</td>
+                  <td className="p-4 text-sm text-textMuted">{p.stock || 0}</td>
                   <td className="p-4 text-right">
                     <button 
                       onClick={() => setEditingProduct({...p, items: p.items ? p.items.join(', ') : ''})}
@@ -228,6 +230,18 @@ export default function ViewProducts() {
                     onChange={(e) => setEditingProduct({...editingProduct, items: e.target.value})}
                   />
                 </div>
+              </div>
+              
+              <div>
+                <label className="block text-sm font-semibold text-textMain mb-2">Stock Quantity</label>
+                <input 
+                  type="number" 
+                  min="0"
+                  className="w-full px-4 py-2.5 rounded-xl border border-border focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors bg-surface" 
+                  value={editingProduct.stock || 0}
+                  onChange={(e) => setEditingProduct({...editingProduct, stock: parseInt(e.target.value, 10) || 0})}
+                  required
+                />
               </div>
               
               {/* Note: In a full app, you'd add image upload here for editing as well */}

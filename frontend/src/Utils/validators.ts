@@ -8,6 +8,7 @@ export const productSchema = z.object({
   price: z.number().min(0.01, "Price must be greater than 0"),
   category: z.string().min(1, "Category is required"),
   items: z.string().min(1, "At least one item is required"),
+  stock: z.number().int().min(0, "Stock cannot be negative").default(0),
 });
 
 // Checkout Delivery Validation Schema
@@ -25,7 +26,7 @@ export function validateData<T>(schema: z.ZodSchema<T>, data: unknown): { succes
     return { success: true, data: result.data };
   } else {
     // Format the first error message beautifully
-    const firstError = result.error.errors[0];
+    const firstError = result.error.issues[0];
     return { success: false, error: firstError.message };
   }
 }
