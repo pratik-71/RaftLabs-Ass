@@ -25,22 +25,11 @@ app.get('/api', (req, res) => {
   res.send('API is running...');
 });
 
-// Serve frontend in production
-if (process.env.NODE_ENV === 'production') {
-  // Set static folder to the compiled React app
-  app.use(express.static(path.join(__dirname, '../frontend/dist')));
+// Fallback route
+app.get('/', (req, res) => {
+  res.send('API is running...');
+});
 
-  // Any route that is not an API route will hit this catch-all
-  // and send back the React index.html file
-  app.get('*', (req, res) => {
-    res.sendFile(path.resolve(__dirname, '../frontend', 'dist', 'index.html'));
-  });
-} else {
-  // Simple fallback for development
-  app.get('/', (req, res) => {
-    res.send('API is running in development mode...');
-  });
-}
 
 const PORT = process.env.PORT || 5000;
 
