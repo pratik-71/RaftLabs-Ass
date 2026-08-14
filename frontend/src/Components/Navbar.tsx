@@ -77,14 +77,12 @@ export default function Navbar() {
     }
   };
 
-  const textColorClass = isScrolled ? "text-gray-900 hover:text-primary" : (isHome ? "text-white hover:text-primary drop-shadow-md" : "text-textMain hover:text-primary");
-  const iconColorClass = isScrolled ? "text-gray-900 hover:text-primary" : (isHome ? "text-white hover:text-primary drop-shadow-md" : "text-textMain hover:text-primary");
+  const textColorClass = "!text-gray-900 hover:!text-primary font-bold drop-shadow-none";
+  const iconColorClass = "!text-gray-900 hover:!text-primary drop-shadow-none";
 
   return (
     <nav className={`w-full flex justify-between items-center px-[5%] transition-all duration-300 z-50 fixed top-0 left-0 ${
-      isHome && !isScrolled
-        ? 'py-4 md:py-5 bg-transparent'
-        : 'border-b ' + (isScrolled ? 'py-3 bg-white shadow-md border-gray-100' : 'py-3.5 bg-background border-border')
+      isScrolled ? 'py-3 bg-white/80 backdrop-blur-lg shadow-sm border-b border-gray-200/50' : 'py-4 md:py-5 bg-white/40 backdrop-blur-md border-b border-white/30'
     }`}>
       <div className="flex items-center gap-3 md:gap-8">
         <button 
@@ -121,13 +119,9 @@ export default function Navbar() {
                 setShowSuggestions(true);
               }}
               onFocus={() => setShowSuggestions(true)}
-              className={`pl-10 pr-4 py-2 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-primary w-48 lg:w-72 transition-all shadow-sm ${
-                isScrolled 
-                  ? 'bg-gray-50 border border-gray-200 text-gray-900 placeholder-gray-400 focus:bg-white' 
-                  : (isHome ? 'bg-white/80 backdrop-blur-sm border border-white/50 text-gray-900 placeholder-gray-500' : 'bg-surface border-border text-textMain')
-              }`}
+              className={`pl-10 pr-4 py-2 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-primary w-48 lg:w-72 transition-all shadow-sm bg-white/80 backdrop-blur-sm border border-white/50 text-gray-900 placeholder-gray-500 focus:bg-white`}
             />
-            <Search size={16} className={`absolute left-3 top-1/2 -translate-y-1/2 ${isScrolled || isHome ? 'text-gray-500' : 'text-textMuted'}`} />
+            <Search size={16} className={`absolute left-3 top-1/2 -translate-y-1/2 text-gray-500`} />
           </form>
 
           {showSuggestions && suggestions.length > 0 && (
