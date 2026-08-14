@@ -1,3 +1,3 @@
 export const BACKEND_URL = import.meta.env.PROD 
-  ? '' // Empty string so requests are relative to the Express server in production
+  ? import.meta.env.VITE_BACKEND_URL || ''
   : 'http://localhost:5000';
