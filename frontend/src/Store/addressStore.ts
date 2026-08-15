@@ -17,7 +17,7 @@ interface AddressStore {
   deleteAddress: (id: number | string) => Promise<void>;
 }
 
-export const useAddressStore = create<AddressStore>((set, get) => ({
+export const useAddressStore = create<AddressStore>((set) => ({
   addresses: [],
   loading: false,
   fetchAddresses: async (userId: string) => {
