@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { BACKEND_URL } from '../../../Config/api';
+import { supabase } from '../../../Config/supabase';
 import { toast } from 'react-hot-toast';
 import { Package, ChevronDown } from 'lucide-react';
 
@@ -48,10 +49,14 @@ export default function ManageOrders() {
   const handleStatusChange = async (orderId: number, newStatus: string) => {
     setUpdatingId(orderId);
     try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const token = session?.access_token;
+
       const res = await fetch(`${BACKEND_URL}/api/orders/${orderId}/status`, {
         method: 'PUT',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({ status: newStatus })
       });

@@ -6,6 +6,7 @@ const {
   getOrderById,
   updateOrderStatus
 } = require('../controllers/orderController');
+const { protect } = require('../middlewares/authMiddleware');
 
 // @route   POST /api/orders
 router.post('/', createOrder);
@@ -17,6 +18,6 @@ router.get('/', getOrders);
 router.get('/:id', getOrderById);
 
 // @route   PUT /api/orders/:id/status
-router.put('/:id/status', updateOrderStatus);
+router.put('/:id/status', protect, updateOrderStatus);
 
 module.exports = router;

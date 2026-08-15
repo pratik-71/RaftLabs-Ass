@@ -43,8 +43,14 @@ export default function ViewProducts() {
     if (!productToDelete) return;
     
     try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const token = session?.access_token;
+
       const res = await fetch(`${BACKEND_URL}/api/products/${productToDelete.id}`, {
-        method: 'DELETE'
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
       });
       if (res.ok) {
         setProducts(products.filter(p => p.id !== productToDelete.id));
@@ -92,9 +98,15 @@ export default function ViewProducts() {
 
       const updatedProduct = { ...editingProduct, imageUrl };
 
+      const { data: { session } } = await supabase.auth.getSession();
+      const token = session?.access_token;
+
       const res = await fetch(`${BACKEND_URL}/api/products/${editingProduct.id}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}` 
+        },
         body: JSON.stringify(updatedProduct)
       });
       
