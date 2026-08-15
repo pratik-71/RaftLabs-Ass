@@ -11,7 +11,6 @@ export default function Navbar() {
   const cartItemsCount = useCartStore((state) => state.items.reduce((total, item) => total + item.quantity, 0));
   const navigate = useNavigate();
   const location = useLocation();
-  const isHome = location.pathname === '/';
   
   const [searchQuery, setSearchQuery] = useState('');
   const [suggestions, setSuggestions] = useState<any[]>([]);
