@@ -2,27 +2,36 @@ import { useState, useMemo, useCallback, useEffect } from 'react';
 import { useCartStore } from '../Store/cartStore';
 import { useAddressStore } from '../Store/addressStore';
 import { useAuthStore } from '../Store/authStore';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
 import { deliverySchema, validateData } from '../Utils/validators';
 import { BACKEND_URL } from '../Config/api';
-import { MapPin, Phone, User, CreditCard, Lock, Loader2, CheckCircle2 } from 'lucide-react';
+import { MapPin, Phone, User, CreditCard, Lock, Loader2, CheckCircle2, ShoppingBag, ArrowRight } from 'lucide-react';
 
 export default function Checkout() {
   const { items: cartItems, clearCart, buyNowItem, setBuyNowItem } = useCartStore();
-  const { addresses } = useAddressStore();
+  const { addresses, addAddress } = useAddressStore();
   const user = useAuthStore((state) => state.user);
   const navigate = useNavigate();
   
   const items = buyNowItem ? [buyNowItem] : cartItems;
   
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isOrderSuccess, setIsOrderSuccess] = useState(false);
+
+  const [isAddingNewAddress, setIsAddingNewAddress] = useState(addresses.length === 0);
 
   const [deliveryDetails, setDeliveryDetails] = useState({
-    name: '',
-    address: '',
-    phone: ''
+    name: addresses.length > 0 ? addresses[0].name : '',
+    address: addresses.length > 0 ? addresses[0].address : '',
+    phone: addresses.length > 0 ? addresses[0].phone : ''
   });
+
+  useEffect(() => {
+    if (addresses.length === 0) {
+      setIsAddingNewAddress(true);
+    }
+  }, [addresses.length]);
 
   const subtotal = useMemo(() => items.reduce((sum, item) => sum + item.price * item.quantity, 0), [items]);
   const deliveryFee = 40.00;
@@ -30,10 +39,10 @@ export default function Checkout() {
 
   // Redirect to cart if empty
   useEffect(() => {
-    if (items.length === 0) {
+    if (items.length === 0 && !isOrderSuccess) {
       navigate('/cart');
     }
-  }, [items, navigate]);
+  }, [items, navigate, isOrderSuccess]);
 
   // Require login
   useEffect(() => {
@@ -71,12 +80,26 @@ export default function Checkout() {
 
       if (response.ok) {
         toast.success('Order placed successfully!');
-        if (buyNowItem) {
-          setBuyNowItem(null); // Clear the direct checkout item
-        } else {
-          clearCart(); // Clear the main cart
+        setIsOrderSuccess(true);
+        
+        // Clear cart after state update to prevent race condition with redirect effect
+        setTimeout(() => {
+          if (buyNowItem) {
+            setBuyNowItem(null);
+          } else {
+            clearCart();
+          }
+        }, 100);
+        
+        // Save address if it doesn't already exist
+        const isExistingAddress = addresses.some(
+          addr => addr.name === deliveryDetails.name && 
+                  addr.address === deliveryDetails.address && 
+                  addr.phone === deliveryDetails.phone
+        );
+        if (!isExistingAddress) {
+          addAddress(deliveryDetails);
         }
-        navigate('/profile');
       } else {
         toast.error('Failed to place order.');
       }
@@ -87,6 +110,34 @@ export default function Checkout() {
       setIsSubmitting(false);
     }
   }, [items, totalAmount, deliveryFee, deliveryDetails, isSubmitting, clearCart, navigate]);
+
+  if (isOrderSuccess) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 font-body p-4">
+        <div className="bg-white p-8 md:p-12 rounded-3xl shadow-xl max-w-md w-full text-center border border-gray-100 relative overflow-hidden">
+          <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-primary to-orange-400"></div>
+          <div className="w-24 h-24 bg-green-50 text-green-500 rounded-full flex items-center justify-center mx-auto mb-6 shadow-inner">
+            <CheckCircle2 size={48} />
+          </div>
+          <h1 className="text-3xl font-heading font-black text-gray-900 mb-2">Order Confirmed!</h1>
+          <p className="text-gray-600 mb-8 font-medium">
+            Your delicious food is being prepared. We will notify you once it's out for delivery.
+          </p>
+          
+          <div className="space-y-4">
+            <Link to="/orders" className="w-full bg-primary text-white font-bold text-lg py-4 rounded-xl hover:bg-primaryHover transition-all shadow-lg shadow-primary/25 flex items-center justify-center gap-2 group">
+              <ShoppingBag size={20} />
+              See My Orders
+            </Link>
+            <Link to="/products" className="w-full bg-white text-gray-900 border-2 border-gray-200 font-bold text-lg py-3.5 rounded-xl hover:border-primary hover:text-primary hover:bg-primary/5 transition-all flex items-center justify-center gap-2">
+              Order More
+              <ArrowRight size={20} />
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (items.length === 0) return null; // Avoid flicker during redirect
 
@@ -108,16 +159,19 @@ export default function Checkout() {
               
               {/* Saved Addresses Selector */}
               {addresses.length > 0 && (
-                <div className="mb-6 border-b border-gray-100 pb-6">
+                <div className={`mb-6 ${isAddingNewAddress ? 'border-b border-gray-100 pb-6' : ''}`}>
                   <label className="block text-sm font-bold text-gray-700 mb-3">Select Saved Address</label>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     {addresses.map(addr => (
                       <button
                         key={addr.id}
                         type="button"
-                        onClick={() => setDeliveryDetails({ name: addr.name, address: addr.address, phone: addr.phone })}
+                        onClick={() => {
+                          setDeliveryDetails({ name: addr.name, address: addr.address, phone: addr.phone });
+                          setIsAddingNewAddress(false);
+                        }}
                         className={`text-left p-4 rounded-xl border transition-all ${
-                          deliveryDetails.address === addr.address && deliveryDetails.phone === addr.phone 
+                          !isAddingNewAddress && deliveryDetails.address === addr.address && deliveryDetails.phone === addr.phone 
                             ? 'border-primary bg-primary/5 shadow-sm ring-1 ring-primary' 
                             : 'border-gray-200 hover:border-primary/50 hover:bg-gray-50'
                         }`}
@@ -126,12 +180,29 @@ export default function Checkout() {
                         <p className="text-xs text-gray-600 mt-1 line-clamp-2">{addr.address}</p>
                       </button>
                     ))}
+                    
+                    {/* Add New Address Button */}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsAddingNewAddress(true);
+                        setDeliveryDetails({ name: '', address: '', phone: '' });
+                      }}
+                      className={`flex flex-col items-center justify-center p-4 rounded-xl border-2 border-dashed transition-all ${
+                        isAddingNewAddress
+                          ? 'border-primary bg-primary/5 shadow-sm text-primary'
+                          : 'border-gray-300 hover:border-primary/50 hover:bg-gray-50 text-gray-500 hover:text-primary'
+                      }`}
+                    >
+                      <span className="font-bold">+ Add New Address</span>
+                    </button>
                   </div>
                 </div>
               )}
 
-              <div className="space-y-5">
-                <div>
+              {isAddingNewAddress && (
+                <div className="space-y-5 animate-in fade-in slide-in-from-top-4 duration-300">
+                  <div>
                   <label className="block text-sm font-bold text-gray-700 mb-2 flex items-center gap-1.5">
                     <User size={16} className="text-gray-400" /> Full Name
                   </label>
@@ -171,6 +242,7 @@ export default function Checkout() {
                   />
                 </div>
               </div>
+              )}
             </div>
           </div>
 
