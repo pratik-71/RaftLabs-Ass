@@ -10,7 +10,7 @@ import { MapPin, Phone, User, CreditCard, Lock, Loader2, CheckCircle2, ShoppingB
 
 export default function Checkout() {
   const { items: cartItems, clearCart, buyNowItem, setBuyNowItem } = useCartStore();
-  const { addresses, addAddress } = useAddressStore();
+  const { addresses, addAddress, fetchAddresses } = useAddressStore();
   const user = useAuthStore((state) => state.user);
   const navigate = useNavigate();
   
@@ -28,10 +28,23 @@ export default function Checkout() {
   });
 
   useEffect(() => {
+    if (user?.id) {
+      fetchAddresses(user.id);
+    }
+  }, [user?.id, fetchAddresses]);
+
+  useEffect(() => {
     if (addresses.length === 0) {
       setIsAddingNewAddress(true);
+    } else if (addresses.length > 0 && deliveryDetails.address === '') {
+      setDeliveryDetails({
+        name: addresses[0].name,
+        address: addresses[0].address,
+        phone: addresses[0].phone
+      });
+      setIsAddingNewAddress(false);
     }
-  }, [addresses.length]);
+  }, [addresses]);
 
   const subtotal = useMemo(() => items.reduce((sum, item) => sum + item.price * item.quantity, 0), [items]);
   const deliveryFee = 40.00;
@@ -97,8 +110,8 @@ export default function Checkout() {
                   addr.address === deliveryDetails.address && 
                   addr.phone === deliveryDetails.phone
         );
-        if (!isExistingAddress) {
-          addAddress(deliveryDetails);
+        if (!isExistingAddress && user?.id) {
+          await addAddress(user.id, deliveryDetails);
         }
       } else {
         toast.error('Failed to place order.');

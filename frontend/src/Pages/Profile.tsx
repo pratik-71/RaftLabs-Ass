@@ -18,7 +18,7 @@ interface Order {
 
 export default function Profile() {
   const user = useAuthStore((state) => state.user);
-  const { addresses, addAddress, deleteAddress } = useAddressStore();
+  const { addresses, addAddress, deleteAddress, fetchAddresses, loading: addressesLoading } = useAddressStore();
   
   const [activeTab, setActiveTab] = useState<'orders' | 'addresses'>('addresses');
   
@@ -54,16 +54,27 @@ export default function Profile() {
     };
   }, [activeTab]);
 
-  const handleAddAddress = (e: React.FormEvent) => {
+  useEffect(() => {
+    if (activeTab === 'addresses' && user?.id) {
+      fetchAddresses(user.id);
+    }
+  }, [activeTab, user?.id, fetchAddresses]);
+
+  const handleAddAddress = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newAddress.name || !newAddress.address || !newAddress.phone) {
       toast.error('Please fill all fields');
       return;
     }
-    addAddress(newAddress);
-    setNewAddress({ name: '', address: '', phone: '' });
-    setShowAddForm(false);
-    toast.success('Address saved successfully');
+    if (!user?.id) return;
+    try {
+      await addAddress(user.id, newAddress);
+      setNewAddress({ name: '', address: '', phone: '' });
+      setShowAddForm(false);
+      toast.success('Address saved successfully');
+    } catch (err) {
+      toast.error('Failed to save address');
+    }
   };
 
   const getStatusColor = (status: string) => {
@@ -170,7 +181,11 @@ export default function Profile() {
                 </div>
               )}
 
-              {addresses.length === 0 && !showAddForm ? (
+              {addressesLoading ? (
+                <div className="bg-white rounded-2xl p-8 text-center border border-dashed border-gray-200">
+                  <p className="text-sm text-gray-500">Loading addresses...</p>
+                </div>
+              ) : addresses.length === 0 && !showAddForm ? (
                 <div className="bg-white rounded-2xl p-8 text-center border border-dashed border-gray-200">
                   <MapPin size={32} className="mx-auto text-gray-300 mb-3" />
                   <p className="text-sm text-gray-500">No saved addresses yet.</p>

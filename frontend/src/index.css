@@ -3,6 +3,11 @@
 @tailwind utilities;
 
 @layer base {
+  html {
+    /* Fluid typography: base size scales from 14px on small mobile to 16px on desktop */
+    font-size: clamp(14px, calc(13px + 0.3125vw), 16px);
+  }
+  
   body {
     @apply antialiased text-textMain bg-background font-body;
   }
