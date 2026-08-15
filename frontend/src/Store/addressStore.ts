@@ -56,7 +56,7 @@ export const useAddressStore = create<AddressStore>((set) => ({
       throw err;
     }
   },
-  updateAddress: async (userId: string, id, updatedAddress) => {
+  updateAddress: async (_userId: string, id, updatedAddress) => {
     try {
       const { data, error } = await supabase
         .from('addresses')
